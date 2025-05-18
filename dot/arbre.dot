@@ -1,0 +1,18 @@
+digraph Arbre {
+    node [shape=circle, fontname="Arial"];
+    "0x64fadbc1f2e0" [label="10"];
+    "0x64fadbc1f2e0" -> "0x64fadbc1f2a0" [label="g"];
+    "0x64fadbc1f2a0" [label="0"];
+    "0x64fadbc1f2a0" -> "0x64fadbc1f420" [label="g"];
+    "0x64fadbc1f420" [label="-10"];
+    "0x64fadbc1f2a0" -> "0x64fadbc1f320" [label="d"];
+    "0x64fadbc1f320" [label="5"];
+    "0x64fadbc1f320" -> "0x64fadbc1f3e0" [label="d"];
+    "0x64fadbc1f3e0" [label="7"];
+    "0x64fadbc1f2e0" -> "0x64fadbc1f360" [label="d"];
+    "0x64fadbc1f360" [label="15"];
+    "0x64fadbc1f360" -> "0x64fadbc1f460" [label="g"];
+    "0x64fadbc1f460" [label="11"];
+    "0x64fadbc1f360" -> "0x64fadbc1f3a0" [label="d"];
+    "0x64fadbc1f3a0" [label="20"];
+}
