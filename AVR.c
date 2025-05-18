@@ -1,46 +1,30 @@
+/* AVR.c */
+
 #include <stdio.h>
 #include <stdlib.h>
-
-/* ============================= Structures ============================= */
-
-typedef struct noeud_ 
-{
-
-    int clef;
-    int equilibre;
-    int hauteur;
-    struct noeud_* gauche;
-    struct noeud_* droite;
-    struct noeud_* donnee;
-    struct noeud_* pere;
-
-} noeud;
-
-typedef struct ABR_ 
-{
-
-    noeud* racine;
-    int ordre;
-
-} ABR;
-
-/* ============================= Déclarations =========================== */
-
-noeud* RotationGauche(noeud* piv);
-noeud* RotationDroite(noeud* piv);
+#include "AVR.h"
 
 /* ============================= Création ================================ */
 
-noeud* Newnoeud(int clef) {
+noeud* Newnoeud(int clef){
     noeud* nouveau = (noeud*)malloc(sizeof(noeud));
+    if(!nouveau){
+        printf("Alloc fail\n");
+    }
     nouveau->clef = clef;
     nouveau->gauche = NULL;
     nouveau->droite = NULL;
-    nouveau->donnee = NULL;
     nouveau->pere = NULL;
     nouveau->equilibre = 0;
     nouveau->hauteur = 0;
+    nouveau->donnee = NULL;
 
+    return nouveau;
+}
+
+donnee* Newdonnee(int d){
+    donnee* nouveau = (donnee*)malloc(sizeof(donnee));
+    nouveau->donnee = d;
     return nouveau;
 }
 
@@ -120,8 +104,6 @@ noeud* plus_grand_noeud(noeud* ne){
 
 int EstFilsGauche(noeud* ne){
 
-    printf("EstFilsGauche");
-
     if(ne->pere->gauche == ne){
         return 1;
     }
@@ -132,8 +114,6 @@ int EstFilsGauche(noeud* ne){
 }
 
 int EstFilsDroit(noeud* ne){
-
-    printf("EstFilsDroit");
 
     if(ne->pere->droite == ne){
         return 1;
@@ -151,15 +131,12 @@ int SuppressionArbre(noeud* racine) {
     SuppressionArbre(racine->gauche);
     SuppressionArbre(racine->droite);
 
-    printf("Suppression du noeud : %d à l'adresse %p\n", racine->clef, (void*)racine);
-
     free(racine);
 
     return 0;
 }
 
 /* ======================================== HAUTEUR et EQUILIBRE ======================== */
-
 
 int MajHauteurEquilibre(noeud* racine) {
 
@@ -173,7 +150,7 @@ int MajHauteurEquilibre(noeud* racine) {
     if (racine->gauche == NULL && racine->droite == NULL){
         racine->hauteur = 0;
         racine->equilibre = 0;
-        return 0;
+        return 1;
     }
 
     /* Si ce n'est pas une feuille */
@@ -205,56 +182,58 @@ int MajHauteurEquilibre(noeud* racine) {
 
 /* =========================== Rééquilibrage ============================== */
 
-noeud* Reequilibre(noeud* ne){
-    noeud* pntr = ne;
-    noeud* rac = pntr;
-    noeud* piv = NULL;
+noeud* Reequilibre(ABR* arbre, noeud* ne){
+
     int eql = 0;
     int eqlfg = 0;
     int eqlfd = 0;
 
-    while(pntr->equilibre < 2 && pntr->equilibre > -2){
-        /* Si le noeud est équilibré alors on remonte */
-        if(pntr->pere == NULL){
-            return pntr;
-        }
-        else{
-            pntr=pntr->pere;
-            MajHauteurEquilibre(pntr);
-        }
-    }
-    if(pntr != NULL){
-        eql = pntr->equilibre;
+    printf("Ext");
+    if(ne != NULL){
+
+        printf("Dedans");
+        /* Permet d'équilibre le noeud pntr */
+
+        eql = ne->equilibre;
         if(eql == 2){
-            eqlfg = pntr->gauche->equilibre;
+            eqlfg = ne->gauche->equilibre;
             if(eqlfg>0){
-                rac = RotationGauche(pntr);
+                ne = RotationGauche(ne);
             }
             else{
-                piv = RotationDroite(pntr->gauche);
-                rac = RotationGauche(piv);
+                ne->gauche = RotationDroite(ne->gauche);
+                ne = RotationGauche(ne);
             }
         }
-        if(eql == -2){
-            eqlfd = pntr->droite->equilibre;
-            if(eqlfd<0){
-                rac = RotationDroite(pntr);
+        else if(eql == -2){
+            eqlfd = ne->droite->equilibre;
+            if(eqlfd<=0){
+                ne = RotationDroite(ne);
             }
-            else{
-                piv = RotationGauche(pntr->droite);
-                rac = RotationDroite(piv);
+            else if(eqlfd > 0){
+                ne->droite = RotationGauche(ne->droite);
+                AffichageArbre(arbre->racine,0);
+                ne = RotationDroite(ne);
             }
         }
+        printf("Ici");
+        if(ne->pere != NULL){
+            printf("Ici");
+            MajHauteurEquilibre(arbre->racine);
+            Reequilibre(arbre, ne->pere);
+        }
+        if(ne->pere == NULL){
+            printf("Ici");
+            arbre->racine = ne;
+        }
+
     }
-    else{
-        rac = pntr;
-    }
-    return rac;
+    return arbre->racine;
 }
 
 /* ============================ Suppression d'un noeud ================================ */
 
-noeud* suppr(noeud* ne, int clef){
+noeud* suppr(ABR* arbre,noeud* ne, int clef){
 
     /* Suppression d'un noeud dans un arbre par clef si celle-ci existe */
     /* Retour : la racine de l'arbre */
@@ -268,14 +247,14 @@ noeud* suppr(noeud* ne, int clef){
     }
     /* Clef pas encore trouvée ! */
     if(ne->clef > clef){
-        ne->gauche = suppr(ne->gauche, clef);
-        MajHauteurEquilibre(ne->gauche);
-        ne->gauche = Reequilibre(ne);
+        ne->gauche = suppr(arbre,ne->gauche, clef);
+        MajHauteurEquilibre(arbre->racine);
+        ne->gauche = Reequilibre(arbre, ne);
     }
     else if (ne->clef < clef){
-        ne->droite = suppr(ne->droite, clef);
-        MajHauteurEquilibre(ne->droite);
-        ne->droite = Reequilibre(ne->droite);
+        ne->droite = suppr(arbre,ne->droite, clef);
+        MajHauteurEquilibre(arbre->racine);
+        ne->droite = Reequilibre(arbre,ne->droite);
     }
     /* On a trouvé la clef ! */
     else{
@@ -308,8 +287,8 @@ noeud* suppr(noeud* ne, int clef){
             else{
                 nex = plus_grand_noeud(ne);
                 ne->clef = nex->clef;
-                ne->gauche = suppr(ne->gauche, nex->clef);
-                ne->gauche = Reequilibre(ne->gauche);
+                ne->gauche = suppr(arbre, ne->gauche, nex->clef);
+                ne->gauche = Reequilibre(arbre, ne->gauche);
             }
 
         }
@@ -327,9 +306,9 @@ int SuppressionNoeud(ABR* arbre, int clef){
 
     if(chercher(arbre->racine,clef) != NULL){
         /* On retourne quelque chose avec suppr car la racine pourrait changer ! */
-        racine = suppr(arbre->racine, clef);
+        racine = suppr(arbre, arbre->racine, clef);
         MajHauteurEquilibre(racine);
-        racine = Reequilibre(racine);
+        racine = Reequilibre(arbre, racine);
         if(racine != NULL){
             arbre->racine = racine;
             return 0;
@@ -427,7 +406,6 @@ int Insertion(ABR* arbre, int clef) {
     /* Retour : 1 si la valeur existe déjà, 0 sinon */
 
     noeud* prx = NULL;
-    noeud* rcn = NULL;
 
     if(arbre->racine == NULL){
         arbre->racine = Newnoeud(clef);
@@ -445,26 +423,28 @@ int Insertion(ABR* arbre, int clef) {
             prx->droite = Newnoeud(clef);
             prx->droite->pere = prx;
         }
-        MajHauteurEquilibre(prx);
-        rcn = Reequilibre(prx);
-        if(rcn != NULL && rcn->pere == NULL){
-            arbre->racine = rcn;
-        }
+        printf("Insertion Reeq pour %d\n", clef);
+        AffichageArbre(arbre->racine, 0);
+        MajHauteurEquilibre(arbre->racine);
+        arbre->racine = Reequilibre(arbre, prx);
     }
     return 0;
 }
 
-/* ============================== EXPORTATION EN .dot ====================== */
+/* ============================== EXPORTATION EN .dot d'un AVR ====================== */
 
 void ExporterDotRec(FILE* fichier, noeud* n) {
-
-    printf("Ecriture du noeud : %d\n", n->clef);
 
     if (n == NULL)
         return;
 
     // Afficher le nœud
-    fprintf(fichier, "    \"%p\" [label=\"%d\"];\n", (void*)n, n->clef);
+    if(n->gauche == NULL && n->droite == NULL && n->donnee != NULL){
+        fprintf(fichier, "    \"%p\" [label=\"%d\",shape=box];\n", (void*)n, n->donnee->donnee); // Cercle (par défaut)
+    }
+    else{
+        fprintf(fichier, "    \"%p\" [label=\"%d\"];\n", (void*)n, n->clef);
+    }
 
     // Relier au fils gauche
     if (n->gauche) {
@@ -499,28 +479,6 @@ int ExporterDot(const char* nom_fichier, ABR* arbre) {
     fprintf(fichier, "}\n");
 
     fclose(fichier);
-
-    return 0;
-}
-
-
-/* ================================ MAIN =================================== */
-
-
-int main() {
-    ABR monABR;
-    monABR.racine = Newnoeud(0);
-  
-    Insertion(&monABR, 10);
-    Insertion(&monABR, 5);
-    Insertion(&monABR, 15);
-    Insertion(&monABR, 20);
-    Insertion(&monABR, 7);
-    Insertion(&monABR, -10);
-    Insertion(&monABR, 11);
-
-    AffichageArbre(monABR.racine,0);
-    ExporterDot("arbre.dot", &monABR);
 
     return 0;
 }
