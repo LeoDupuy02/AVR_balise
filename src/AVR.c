@@ -26,50 +26,56 @@ donnee* Newdonnee(int d){
     return nouveau;
 }
 
-/* =============================== Affichage ============================== */
-
-
-void AffichageArbre(noeud* n, int niveau) {
-
-    if(niveau == 0){
-        printf(" ====== Affichage de l'arbre ====== \n\n");
-    }
-
-    if (n == NULL) return;
-
-    // Afficher d'abord le sous-arbre droit
-    AffichageArbre(n->droite, niveau + 1);
-
-    // Indenter selon le niveau pour simuler la hauteur
-    for (int i = 0; i < niveau; i++)
-        printf("    "); // 4 espaces d'indentation
-
-    // Afficher la clef du nœud courant
-    if(n->pere!=NULL && n->gauche != NULL && n->droite != NULL){
-        printf("%d %d %d %d\n", n->clef, n->pere->clef, n->gauche->clef, n->droite->clef);
-    }
-    else if(n->pere != NULL){
-        printf("%d %d\n", n->clef, n->pere->clef);
-    }
-    else if(n->pere == NULL){
-        printf("%d %d %d\n",n->clef, n->gauche->clef, n->droite->clef);
-    }
-
-    // Afficher le sous-arbre gauche
-    AffichageArbre(n->gauche, niveau + 1);
+ABR* NewArbre(){
+    ABR* nouveau = (ABR*)malloc(sizeof(ABR));
+    nouveau->racine = NULL;
+    return nouveau;
 }
 
+/* =========================== Hauteur et équilibre ======================= */
+
+int hauteur(noeud* ne){
+    if(ne == NULL){
+        return -1;
+    }
+    else if(ne->donnee != NULL){
+        return -1;
+    }
+    else{
+        return ne->hauteur;
+    }
+}
+
+void MajHauteurEquilibre(noeud* ne){
+
+    if(ne != NULL){
+        printf("Maj de %d : hauteur = %d and equlibre = %d\n", ne->clef, ne->hauteur, ne->equilibre);
+        int htrg = hauteur(ne->gauche);
+        int htrd = hauteur(ne->droite);
+        ne->equilibre = htrg - htrd;
+        if(htrd>htrg){
+            ne->hauteur = 1 + htrd;
+        }
+        else{
+            ne->hauteur = 1 + htrg;
+        }
+    }
+
+}
 
 /* ============================== Recherche ============================= */
 
 noeud* chercher(noeud* racine, int clef){
 
-    /* Ici on part d'un noeud pour faire la recherche */
-    /* retour : noeud associé à la clef OU NULL si pas trouvée */
+    /* Ici on part d'un noeud pour faire la recherche de la clef (permet de limiter la taille du sous arbre à parcourir) */
+    /* Retour : noeud associé à la clef OU NULL si pas trouvée */
 
     noeud* found = NULL;
 
     if(racine == NULL){
+        return NULL;
+    }
+    else if(racine->donnee != NULL){
         return NULL;
     }
     else{
@@ -89,25 +95,50 @@ noeud* chercher(noeud* racine, int clef){
     return found;
 }
 
-noeud* plus_grand_noeud(noeud* ne){
+noeud* Plus_Grand_Noeud(noeud* ne){
 
-    /* Retourne le noeud de plus grande clef en partant de ne */
+    /* Retour : le noeud de plus grande clef en partant de ne */
+    /* Note : Vérifer auparavant que ne n'est pas nul */
 
     noeud* pg = NULL;
 
     if(ne->droite == NULL){
         return ne;
     }
-    else{
-        pg = plus_grand_noeud(ne->droite);
+    else if(ne->droite->donnee != NULL){
+        return ne;
     }
-    return pg;
+    else{
+        pg = Plus_Grand_Noeud(ne->droite);
+        return pg;
+    }
 
 }
 
-/* ============================ Suppression de l'arbre ================================ */
+noeud* localiserPere(noeud* racine, int clef){
+
+    if(racine->clef > clef){
+        if(racine->gauche != NULL && racine->gauche->donnee == NULL){
+            return localiserPere(racine->gauche, clef);
+        }
+        return racine;
+    }
+    else if(racine->clef < clef){
+        if(racine->droite != NULL  && racine->gauche->donnee == NULL){
+            return localiserPere(racine->droite, clef);
+        }
+        return racine;
+    }
+    else{
+        return NULL;
+    }
+}
+
+/* ===========================Fonctions générales ========================= */
 
 int EstFilsGauche(noeud* ne){
+
+    /* Toujours vérifier que ne.pere existe  au préalable */
 
     if(ne->pere->gauche == ne){
         return 1;
@@ -120,6 +151,8 @@ int EstFilsGauche(noeud* ne){
 
 int EstFilsDroit(noeud* ne){
 
+    /* Toujours vérifier que ne.pere existe au préalable */
+
     if(ne->pere->droite == ne){
         return 1;
     }
@@ -129,164 +162,35 @@ int EstFilsDroit(noeud* ne){
 
 }
 
-int SuppressionArbre(noeud* racine) {
-    if (racine == NULL)
-        return 0;
+/* =============================== Affichage ============================== */
 
-    SuppressionArbre(racine->gauche);
-    SuppressionArbre(racine->droite);
 
-    free(racine);
+void AffichageArbre(noeud* n, int niveau) {
 
-    return 0;
-}
-
-/* ======================================== HAUTEUR et EQUILIBRE ======================== */
-
-int MajHauteurEquilibre(noeud* racine) {
-
-    /* mise à jour de la hauteur d'un noeud et de tout ses noeuds enfants */
-
-    int hauteur_gauche = 0;
-    int hauteur_droite = 0;
-    int max_hauteur = 0;
-
-    /* Si c'est une feuille on retourne */
-    if (racine->gauche == NULL && racine->droite == NULL){
-        racine->hauteur = 0;
-        racine->equilibre = 0;
-        return 1;
+    if(niveau == 0){
+        printf(" ====== Affichage de l'arbre ====== \n\n");
     }
 
-    /* Si ce n'est pas une feuille */
-    /* On vérifie que ses voisins existent */
-    if(racine->gauche != NULL){
-        hauteur_gauche = MajHauteurEquilibre(racine->gauche);
+    if (n == NULL) return;
+    if (n->donnee != NULL) return;
+
+    // Afficher d'abord le sous-arbre droit
+    AffichageArbre(n->droite, niveau + 1);
+
+    // Indenter selon le niveau pour simuler la hauteur
+    for (int i = 0; i < niveau; i++)
+        printf("    "); // 4 espaces d'indentation
+
+    // Afficher la clef du nœud courant
+    if(n->donnee == NULL){
+        printf("%d\n", n->clef);
     }
     else{
-        hauteur_gauche = 0;
-    }
-    if(racine->droite != NULL){
-        hauteur_droite = MajHauteurEquilibre(racine->droite);
-    }
-    else{
-        hauteur_droite = 0;
-    }
-    
-    if (hauteur_gauche > hauteur_droite){
-        max_hauteur = hauteur_gauche;
-    }
-    else{
-        max_hauteur = hauteur_droite;
+        printf("[%d]\n", n->donnee->donnee);
     }
 
-    racine->hauteur = 1 + max_hauteur;
-    racine->equilibre = hauteur_gauche - hauteur_droite;
-    return racine->hauteur;
-}
-
-/* =========================== Rééquilibrage ============================== */
-
-noeud* Reequilibre(ABR* arbre, noeud* ne){
-
-    int eql = 0;
-    int eqlfg = 0;
-    int eqlfd = 0;
-
-    if(ne != NULL){
-
-        eql = ne->equilibre;
-        if(eql == 2){
-            eqlfg = ne->gauche->equilibre;
-            if(eqlfg>0){
-                ne = RotationGauche(ne);
-            }
-            else{
-                ne->gauche = RotationDroite(ne->gauche);
-                ne = RotationGauche(ne);
-            }
-        }
-        else if(eql == -2){
-            eqlfd = ne->droite->equilibre;
-            if(eqlfd<=0){
-                ne = RotationDroite(ne);
-            }
-            else if(eqlfd > 0){
-                ne->droite = RotationGauche(ne->droite);
-                ne = RotationDroite(ne);
-            }
-        }
-        if(ne->pere != NULL){
-            MajHauteurEquilibre(arbre->racine);
-            Reequilibre(arbre, ne->pere);
-        }
-        if(ne->pere == NULL){
-            arbre->racine = ne;
-        }
-
-    }
-    printf("Fin du reequilibrage\n");
-    return arbre->racine;
-}
-
-/* ============================ Suppression d'un noeud ================================ */
-
-noeud* suppression(ABR* arbre, noeud* ne, int clef) {
-
-    noeud* pr = NULL;
-
-    if (ne == NULL) return NULL;
-
-    if (clef < ne->clef) {
-        ne->gauche = suppression(arbre, ne->gauche, clef);
-    } else if (clef > ne->clef) {
-        ne->droite = suppression(arbre, ne->droite, clef);
-    } else {
-        // Cas 1 : feuille
-        if (ne->gauche == NULL && ne->droite == NULL) {
-            if (ne->pere != NULL) {
-                if (EstFilsGauche(ne)) ne->pere->gauche = NULL;
-                else ne->pere->droite = NULL;
-            }
-            pr = ne->pere;
-            free(ne);
-            MajHauteurEquilibre(arbre->racine);
-            Reequilibre(arbre, pr);
-            return NULL;
-        }
-        // Cas 2 : un seul fils
-        else if (ne->gauche == NULL || ne->droite == NULL) {
-            noeud* enfant = (ne->gauche != NULL) ? ne->gauche : ne->droite;
-            enfant->pere = ne->pere;
-            free(ne);
-            MajHauteurEquilibre(arbre->racine);
-            Reequilibre(arbre, enfant);
-            return enfant;
-        }
-        // Cas 3 : deux fils
-        else {
-            noeud* remplaçant = plus_grand_noeud(ne->gauche);
-            ne->clef = remplaçant->clef;
-            ne->gauche = suppression(arbre, ne->gauche, remplaçant->clef);
-        }
-    }
-
-    MajHauteurEquilibre(ne);
-    AffichageArbre(arbre->racine,0);
-    return arbre->racine;
-}
-
-int SuppressionNoeud(ABR* arbre, int clef) {
-
-    if (arbre == NULL || arbre->racine == NULL) return 1;
-
-    if (chercher(arbre->racine, clef) == NULL) return 1;
-
-    suppression(arbre, arbre->racine, clef); 
-
-    printf("Terminé\n");
-
-    return 0;
+    // Afficher le sous-arbre gauche
+    AffichageArbre(n->gauche, niveau + 1);
 }
 
 
@@ -294,28 +198,33 @@ int SuppressionNoeud(ABR* arbre, int clef) {
 
 noeud* RotationGauche(noeud* piv){
     
+    printf("Rot depuis %d\n", piv->clef);
+
     noeud* rac = piv;
     noeud* prpiv = piv->pere;
 
     /* Attention : Pas de MAJ des hauteurs et de l'équilibre ici */
+    /* N'agit que si piv existe et n'est pas une feuille externe */
 
     if(piv->gauche != NULL){
-        rac = piv->gauche;
-        rac->pere = prpiv;
-        if(prpiv != NULL && EstFilsGauche(piv)){
-            prpiv->gauche = rac;
+        if(piv->gauche->donnee == NULL){
+            rac = piv->gauche;
+            rac->pere = prpiv;
+            if(prpiv != NULL){
+                if(EstFilsGauche(piv)){
+                    prpiv->gauche = rac;
+                }
+                else{
+                    prpiv->droite = rac;
+                }
+            }
+            piv->gauche = rac->droite;
+            if(piv->gauche != NULL){
+                piv->gauche->pere = piv;
+            }
+            rac->droite = piv;
+            piv->pere = rac;
         }
-        if(prpiv != NULL && EstFilsDroit(piv)){
-            prpiv->droite = rac;
-        }
-        piv->gauche = rac->droite;
-        if(piv->gauche != NULL){
-            piv->gauche->pere = piv;
-        }
-        
-        rac->droite = piv;
-        piv->pere = rac;
-
     }
 
     return rac;
@@ -327,127 +236,273 @@ noeud* RotationDroite(noeud* piv){
     noeud* prpiv = piv->pere;
 
     /* Attention : Pas de MAJ des hauteurs et de l'équilibre ici */
+    /* N'agit que si piv existe et n'est pas une feuille externe */
 
     if(piv->droite != NULL){
-        rac = piv->droite;
-        rac->pere = prpiv;
-        if(prpiv != NULL && EstFilsGauche(piv)){
-            prpiv->gauche = rac;
+        if(piv->droite->donnee == NULL){
+            rac = piv->droite;
+            rac->pere = prpiv;
+            if(prpiv != NULL){
+                if(EstFilsGauche(piv)){
+                    prpiv->gauche = rac;
+                }
+                else{
+                    prpiv->droite = rac;
+                }
+            }
+            piv->droite = rac->gauche;
+            if(piv->droite != NULL){
+                piv->droite->pere = piv;
+            }
+            
+            rac->gauche = piv;
+            piv->pere = rac;
         }
-        if(prpiv != NULL && EstFilsDroit(piv)){
-            prpiv->droite = rac;
-        }
-        piv->droite = rac->gauche;
-        if(piv->droite != NULL){
-            piv->droite->pere = piv;
-        }
-        
-        rac->gauche = piv;
-        piv->pere = rac;;
-
     }
 
     return rac;
 }
 
-/* ============================= Insertion ================================= */
+/* =========================== Rééquilibrage ============================== */
 
-noeud* localiserPere(noeud* racine, int clef){
+noeud* Reequilibre(noeud* ne){
 
-    if(racine->clef > clef){
-        if(racine->gauche != NULL){
-            return localiserPere(racine->gauche, clef);
+    /* On ne rééquilibre que un noeud !!!!*/
+    /* Entrée : noeud qui va être rééquilibré */
+    /* Sortie : noeud à la même hauteur de l'arbre rééquilibré */
+
+    noeud* pntr = ne;
+    noeud* rac = pntr;
+    int eql, eqlfg, eqlfd = 0;
+
+    if(pntr != NULL){
+        if(pntr->donnee == NULL){
+            printf("On va rééquilibre tout cela au niveau de : %d\n", ne->clef);
+            eql = pntr->equilibre;
+            if(eql == 2){
+                /* OK car les feuilles externes ne sont pas pris en compte dans le calcul de la hauteur et de l'équilibre */
+                eqlfg = pntr->gauche->equilibre;
+                if(eqlfg>0){
+                    rac = RotationGauche(pntr);
+                }
+                else{
+                    pntr->gauche = RotationDroite(pntr->gauche);
+                    MajHauteurEquilibre(pntr->gauche);
+                    rac = RotationGauche(pntr);
+                }
+            }
+            if(eql == -2){
+                /* OK car les feuilles externes ne sont pas pris en compte dans le calcul de la hauteur et de l'équilibre */
+                eqlfd = pntr->droite->equilibre;
+                if(eqlfd<0){
+                    rac = RotationDroite(pntr);
+                }
+                else{
+                    pntr->droite = RotationGauche(pntr->droite);
+                    MajHauteurEquilibre(pntr->droite);
+                    rac = RotationDroite(pntr);
+                }
+            } 
         }
-        return racine;
-    }
-    else if(racine->clef < clef){
-        if(racine->droite != NULL){
-            return localiserPere(racine->droite, clef);
-        }
-        return racine;
     }
     else{
-        return NULL;
+        rac = pntr;
     }
+    return rac;
 }
 
-int Insertion(ABR* arbre, int clef) {
+/* ============================ Suppression d'un noeud ================================ */
+
+void Suppr_Donnee(noeud* ne){
+
+    /* Supprime la donnée attachée à un noeud si celui-ci en possède*/
+
+    if(ne->donnee != NULL){
+        free(ne->donnee);
+    }
+
+}
+
+noeud* Suppr_noeud(noeud* ne, int clef) {
+
+    /* Supprime un noeud interne et rééquilibre l'arbre */
+    /* Retour : racine de l'arbre */
+    /* Note : "ne" doit être la racine de l'arbre */
+
+    noeud* nex = NULL;
+    noeud* remplaçant = NULL;
+
+    if (ne == NULL) return NULL;
+    if (ne->donnee != NULL) return NULL;
+
+    if (clef < ne->clef) {
+        ne->gauche = Suppr_noeud(ne->gauche, clef);
+        MajHauteurEquilibre(ne->gauche);
+        ne->gauche = Reequilibre(ne->gauche);
+    } else if (clef > ne->clef) {
+        ne->droite = Suppr_noeud(ne->droite, clef);
+        MajHauteurEquilibre(ne->droite);
+        ne->droite = Reequilibre(ne->droite);
+    }
+    else {
+        printf("Le noeud à supprimer a été trouvé ! ne = %d\n", ne->clef);
+
+        // Cas 1 : La clef correspond à une feuille : 4 cas possibles.
+        if (ne->gauche == NULL && ne->droite == NULL){
+            printf("Cas 1 de suppression\n");
+            free(ne);
+            return NULL;
+        }
+        else if(ne->gauche == NULL){
+            if(ne->droite->donnee != NULL){
+                printf("Cas 1 de suppression\n");
+                free(ne);
+                return NULL;
+            }
+        }
+        else if(ne->droite == NULL){
+            if(ne->gauche->donnee != NULL){
+                printf("Cas 1 de suppression\n");
+                free(ne);
+                return NULL;
+            }
+        }
+        else if(ne->gauche->donnee != NULL && ne->droite->donnee != NULL){
+            printf("Cas 1 de suppression\n");
+            free(ne);
+            return NULL;
+        }
+        // Cas 2 : Un des deux fils est NULL
+        else if(ne->gauche == NULL || ne->gauche->donnee != NULL){
+            printf("Cas 2.1 de suppression\n");
+            nex = ne;
+            ne->droite->pere = ne->pere;
+            ne = ne->droite;
+
+            free(nex);
+        }
+        else if(ne->droite == NULL || ne->droite->donnee != NULL){
+            printf("Cas 2.2 de suppression\n");
+            nex = ne;
+            ne->gauche->pere = ne->pere;
+            ne = ne->gauche;
+
+            free(nex);
+        }
+        // Cas 3 : Les deux fils sont non nuls
+        else {
+            printf("Cas 3 de suppression\n");
+            remplaçant = Plus_Grand_Noeud(ne->gauche);
+            ne->clef = remplaçant->clef;
+            ne->gauche = Suppr_noeud(ne->gauche, remplaçant->clef);
+            MajHauteurEquilibre(ne->gauche);
+            ne->gauche = Reequilibre(ne->gauche);
+        }
+    }
+
+    return ne;
+}
+
+void Suppression_Noeud(ABR* arbre, int clef) {
+
+    printf("Suppression et rééquilibrage débutent : %d\n", clef);
+
+    /* Supprime un noeud dans un arbre de manière récursive */
+
+    noeud* racine = NULL;
+
+    if (arbre == NULL || arbre->racine == NULL){
+        return;
+    }
+    if (chercher(arbre->racine, clef) == NULL){
+        return;
+    }
+    
+    racine = Suppr_noeud(arbre->racine, clef); 
+    MajHauteurEquilibre(racine);
+    arbre->racine = Reequilibre(racine);
+    printf("Suppression et rééquilibrage terminés !\n");
+
+    return;
+}
+
+/* ============================= Insertion ================================= */
+
+void Insertion(ABR* arbre, int clef) {
 
     /* Code itératif d'insertion dans un AVR */ 
     /* Retour : 1 si la valeur existe déjà, 0 sinon */
 
-    noeud* prx = NULL;
+    printf("Insertion du noeud : %d\n", clef);
 
     if(arbre->racine == NULL){
         arbre->racine = Newnoeud(clef);
+        MajHauteurEquilibre(arbre->racine);
     }
     else{
-        prx = localiserPere(arbre->racine, clef);
-        if(prx == NULL){
-            return 1;
-        }
-        if(prx->clef > clef){
-            prx->gauche = Newnoeud(clef);
-            prx->gauche->pere = prx;
+        arbre->racine = insr(arbre->racine, clef);
+    }
+
+    printf("Fin de l'insertion du noeud : %d\n", clef);
+}
+
+noeud* insr(noeud* racine, int clef){
+
+    if(racine->clef>clef){
+        if(racine->gauche != NULL){
+            racine->gauche = insr(racine->gauche,clef);
+            MajHauteurEquilibre(racine->gauche);
+            racine->gauche = Reequilibre(racine->gauche);
         }
         else{
-            prx->droite = Newnoeud(clef);
-            prx->droite->pere = prx;
+            racine->gauche = Newnoeud(clef);
+            racine->gauche->pere = racine;
+            MajHauteurEquilibre(racine->gauche);
         }
-        MajHauteurEquilibre(arbre->racine);
-        arbre->racine = Reequilibre(arbre, prx);
     }
-    return 0;
+    else if(racine->clef<clef){
+        if(racine->droite != NULL){
+            racine->droite = insr(racine->droite,clef);
+            MajHauteurEquilibre(racine->droite);
+            racine->droite = Reequilibre(racine->droite);
+        }
+        else{
+            racine->droite = Newnoeud(clef);
+            racine->droite->pere = racine;
+            MajHauteurEquilibre(racine->droite);
+        }
+    }
+
+    return racine;
 }
 
-/* ============================== EXPORTATION EN .dot d'un AVR ====================== */
+/* ============================= Suppression arbre =========================== */
 
-void ExporterDotRec(FILE* fichier, noeud* n) {
+int SupprArbre(noeud* racine) {
 
-    if (n == NULL)
-        return;
-
-    // Afficher le nœud
-    if(n->gauche == NULL && n->droite == NULL && n->donnee != NULL){
-        fprintf(fichier, "    \"%p\" [label=\"%d\",shape=box];\n", (void*)n, n->donnee->donnee); // Cercle (par défaut)
-    }
-    else{
-        fprintf(fichier, "    \"%p\" [label=\"%d\"];\n", (void*)n, n->clef);
+    if (racine == NULL){
+        return 0;
     }
 
-    // Relier au fils gauche
-    if (n->gauche) {
-        fprintf(fichier, "    \"%p\" -> \"%p\" [label=\"g\"];\n", (void*)n, (void*)n->gauche);
-        ExporterDotRec(fichier, n->gauche);
+    SupprArbre(racine->gauche);
+    SupprArbre(racine->droite);
+
+    if(racine->donnee != NULL){
+        free(racine->donnee);
     }
 
-    // Relier au fils droit
-    if (n->droite) {
-        fprintf(fichier, "    \"%p\" -> \"%p\" [label=\"d\"];\n", (void*)n, (void*)n->droite);
-        ExporterDotRec(fichier, n->droite);
-    }
-}
-
-int ExporterDot(const char* nom_fichier, ABR* arbre) {
-
-    FILE* fichier = fopen(nom_fichier, "w");
-    if (fichier == NULL) {
-        perror("Erreur lors de l'ouverture du fichier .dot");
-        return 1;
-    }
-
-    fprintf(fichier, "digraph Arbre {\n");
-    fprintf(fichier, "    node [shape=circle, fontname=\"Arial\"];\n");
-
-    if (arbre->racine == NULL) {
-        fprintf(fichier, "    vide [label=\"Arbre vide\"];\n");
-    } else {
-        ExporterDotRec(fichier, arbre->racine);
-    }
-
-    fprintf(fichier, "}\n");
-
-    fclose(fichier);
+    free(racine);
 
     return 0;
+
+}
+
+void SuppressionArbre(ABR* arbre){
+
+    SupprArbre(arbre->racine);
+
+    free(arbre);
+
+    printf("Arbre totalement supprimé !\n");
+
 }

@@ -207,7 +207,6 @@ int SuppressionNoeudBalise(ABR* arbre, int clef){
     return 1;
 }
 
-
 /* ======================= Affichage ========================= */
 
 void AffichageArbreBalise(noeud* n, int niveau) {

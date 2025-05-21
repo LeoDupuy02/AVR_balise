@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c99 -g
 
-SRC = main.c pile.c AVR.c AVR_balise.c
+SRC = test.c AVR.c
 OBJ = $(SRC:.c=.o)
-DEPS = AVR.h AVR_balise.h
+DEPS = AVR.h
 
 EXEC = main
 

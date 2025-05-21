@@ -20,27 +20,38 @@ typedef struct noeud_ {
 
 typedef struct ABR_ {
     noeud* racine;
-    int nb;
 } ABR;
 
 noeud* Newnoeud(int clef);
 donnee* Newdonnee(int d);
-void AffichageArbre(noeud* n, int niveau);
+ABR* NewArbre();
+
+int hauteur(noeud* ne);
+void MajHauteurEquilibre(noeud* ne);
+int MajHauteurEquilibreRec(noeud* ne);
+
 noeud* chercher(noeud* racine, int clef);
-noeud* plus_grand_noeud(noeud* ne);
-int EstFilsGauche(noeud* ne);
+noeud* Plus_Grand_Noeud(noeud* ne);
+noeud* localiserPere(noeud* racine, int clef);
+
 int EstFilsDroit(noeud* ne);
-int SuppressionArbre(noeud* racine);
-int MajHauteurEquilibre(noeud* racine);
-noeud* Reequilibre(ABR* arbre, noeud* ne);
-noeud* suppression(ABR* arbre, noeud* ne, int clef);
-int SuppressionNoeud(ABR* arbre, int clef);
+int EstFilsGauche(noeud* ne);
+
+void AffichageArbre(noeud* n, int niveau);
+
 noeud* RotationGauche(noeud* piv);
 noeud* RotationDroite(noeud* piv);
-noeud* localiserPere(noeud* racine, int clef);
-int Insertion(ABR* arbre, int clef);
-void ExporterDotRec(FILE* fichier, noeud* n);
-int ExporterDot(const char* nom_fichier, ABR* arbre);
 
+noeud* Reequilibre(noeud* ne);
+
+void Suppr_Donnee(noeud* ne);
+noeud* Suppr_noeud(noeud* ne, int clef);
+void Suppression_Noeud(ABR* arbre, int clef);
+
+void Insertion(ABR* arbre, int clef);
+noeud* insr(noeud* racine, int clef);
+
+int SupprArbre(noeud* racine);
+void SuppressionArbre(ABR* arbre);
 
 #endif // AVL_H
