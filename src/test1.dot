@@ -1,0 +1,34 @@
+digraph Arbre {
+    node [shape=circle, fontname="Arial"];
+    "0x6054568aa710" [label="5"];
+    "0x6054568aa710" -> "0x6054568aa6d0" [label="g"];
+    "0x6054568aa6d0" [label="0"];
+    "0x6054568aa6d0" -> "0x6054568aa750" [label="g"];
+    "0x6054568aa750" [label="-2"];
+    "0x6054568aa750" -> "0x6054568aa790" [label="g"];
+    "0x6054568aa790" [label="-10"];
+    "0x6054568aa790" -> "0x6054568aa850" [label="g"];
+    "0x6054568aa850" [label="-10",shape=box];
+    "0x6054568aa790" -> "0x6054568aa970" [label="d"];
+    "0x6054568aa970" [label="-2",shape=box];
+    "0x6054568aa750" -> "0x6054568aa9b0" [label="d"];
+    "0x6054568aa9b0" [label="0",shape=box];
+    "0x6054568aa6d0" -> "0x6054568aa9f0" [label="d"];
+    "0x6054568aa9f0" [label="5",shape=box];
+    "0x6054568aa710" -> "0x6054568aa890" [label="d"];
+    "0x6054568aa890" [label="50"];
+    "0x6054568aa890" -> "0x6054568aa810" [label="g"];
+    "0x6054568aa810" [label="10"];
+    "0x6054568aa810" -> "0x6054568aaa50" [label="g"];
+    "0x6054568aaa50" [label="10",shape=box];
+    "0x6054568aa810" -> "0x6054568aa7d0" [label="d"];
+    "0x6054568aa7d0" [label="15"];
+    "0x6054568aa7d0" -> "0x6054568aaab0" [label="g"];
+    "0x6054568aaab0" [label="15",shape=box];
+    "0x6054568aa7d0" -> "0x6054568aab10" [label="d"];
+    "0x6054568aab10" [label="50",shape=box];
+    "0x6054568aa890" -> "0x6054568aab50" [label="d"];
+    "0x6054568aab50" [label="60"];
+    "0x6054568aab50" -> "0x6054568aab90" [label="g"];
+    "0x6054568aab90" [label="60",shape=box];
+}

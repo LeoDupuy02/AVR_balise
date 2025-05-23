@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 typedef struct donnee_ {
-    int donnee;
+    noeud* donnee;
 } donnee;
 
 typedef struct noeud_ {

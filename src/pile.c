@@ -11,6 +11,7 @@
 Pile* creerPile() {
     Pile* pile = malloc(sizeof(Pile));
     pile->sommet = NULL;
+    printf("Pile créée\n");
     return pile;
 }
 
@@ -81,6 +82,7 @@ void SupprimerPile(Pile* pile) {
 /* ============================== Afficher pile =================================== */
 
 int afficherPile(Pile* pile) {
+
     if (estVide(pile)) {
         printf("Pile vide.\n");
         return 0;

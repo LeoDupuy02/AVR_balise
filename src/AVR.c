@@ -20,7 +20,7 @@ noeud* Newnoeud(int clef){
     return nouveau;
 }
 
-donnee* Newdonnee(int d){
+donnee* Newdonnee(noeud* d){
     donnee* nouveau = (donnee*)malloc(sizeof(donnee));
     nouveau->donnee = d;
     return nouveau;
@@ -49,7 +49,6 @@ int hauteur(noeud* ne){
 void MajHauteurEquilibre(noeud* ne){
 
     if(ne != NULL){
-        printf("Maj de %d : hauteur = %d and equlibre = %d\n", ne->clef, ne->hauteur, ne->equilibre);
         int htrg = hauteur(ne->gauche);
         int htrd = hauteur(ne->droite);
         ne->equilibre = htrg - htrd;
@@ -59,6 +58,7 @@ void MajHauteurEquilibre(noeud* ne){
         else{
             ne->hauteur = 1 + htrg;
         }
+        printf("Maj de %d : hauteur = %d and equlibre = %d\n", ne->clef, ne->hauteur, ne->equilibre);
     }
 
 }
@@ -134,6 +134,10 @@ noeud* localiserPere(noeud* racine, int clef){
     }
 }
 
+//void Chercher_et_remplacer_donnee(noeud* ng, noeud* nd){
+
+//}
+
 /* ===========================Fonctions générales ========================= */
 
 int EstFilsGauche(noeud* ne){
@@ -168,11 +172,10 @@ int EstFilsDroit(noeud* ne){
 void AffichageArbre(noeud* n, int niveau) {
 
     if(niveau == 0){
-        printf(" ====== Affichage de l'arbre ====== \n\n");
+        printf("\n ====== Affichage de l'arbre ====== \n\n");
     }
 
     if (n == NULL) return;
-    if (n->donnee != NULL) return;
 
     // Afficher d'abord le sous-arbre droit
     AffichageArbre(n->droite, niveau + 1);
@@ -182,12 +185,7 @@ void AffichageArbre(noeud* n, int niveau) {
         printf("    "); // 4 espaces d'indentation
 
     // Afficher la clef du nœud courant
-    if(n->donnee == NULL){
-        printf("%d\n", n->clef);
-    }
-    else{
-        printf("[%d]\n", n->donnee->donnee);
-    }
+    printf("%d\n", n->clef);
 
     // Afficher le sous-arbre gauche
     AffichageArbre(n->gauche, niveau + 1);
@@ -197,8 +195,8 @@ void AffichageArbre(noeud* n, int niveau) {
 /* ============================================ Rotations ================================ */
 
 noeud* RotationGauche(noeud* piv){
-    
-    printf("Rot depuis %d\n", piv->clef);
+
+    printf("Rot G\n");
 
     noeud* rac = piv;
     noeud* prpiv = piv->pere;
@@ -227,10 +225,16 @@ noeud* RotationGauche(noeud* piv){
         }
     }
 
+    MajHauteurEquilibre(rac->gauche);
+    MajHauteurEquilibre(rac->droite);
+    MajHauteurEquilibre(rac);
+
     return rac;
 }
 
 noeud* RotationDroite(noeud* piv){
+
+    printf("Rot G\n");
     
     noeud* rac = piv;
     noeud* prpiv = piv->pere;
@@ -254,11 +258,14 @@ noeud* RotationDroite(noeud* piv){
             if(piv->droite != NULL){
                 piv->droite->pere = piv;
             }
-            
             rac->gauche = piv;
             piv->pere = rac;
         }
     }
+
+    MajHauteurEquilibre(rac->gauche);
+    MajHauteurEquilibre(rac->droite);
+    MajHauteurEquilibre(rac);
 
     return rac;
 }
@@ -287,7 +294,6 @@ noeud* Reequilibre(noeud* ne){
                 }
                 else{
                     pntr->gauche = RotationDroite(pntr->gauche);
-                    MajHauteurEquilibre(pntr->gauche);
                     rac = RotationGauche(pntr);
                 }
             }
@@ -299,7 +305,6 @@ noeud* Reequilibre(noeud* ne){
                 }
                 else{
                     pntr->droite = RotationGauche(pntr->droite);
-                    MajHauteurEquilibre(pntr->droite);
                     rac = RotationDroite(pntr);
                 }
             } 
@@ -308,6 +313,7 @@ noeud* Reequilibre(noeud* ne){
     else{
         rac = pntr;
     }
+
     return rac;
 }
 
@@ -325,147 +331,127 @@ void Suppr_Donnee(noeud* ne){
 
 noeud* Suppr_noeud(noeud* ne, int clef) {
 
-    /* Supprime un noeud interne et rééquilibre l'arbre */
-    /* Retour : racine de l'arbre */
-    /* Note : "ne" doit être la racine de l'arbre */
-    /* Note : Dans cette fonction on élude toujours la feuille externe de gauche si on supprime son parent direct*/
+    noeud* mg = NULL;
+    noeud* md = NULL;
 
-    noeud* nex = NULL;
-    noeud* remplaçant = NULL;
-
-    if (ne == NULL) return NULL;
-    if (ne->donnee != NULL) return NULL;
+    if (ne == NULL) return ne;
 
     if (clef < ne->clef) {
         ne->gauche = Suppr_noeud(ne->gauche, clef);
-        MajHauteurEquilibre(ne->gauche);
+        if (ne->gauche) MajHauteurEquilibre(ne->gauche);
         ne->gauche = Reequilibre(ne->gauche);
-    } else if (clef > ne->clef) {
+    } 
+    else if (clef > ne->clef) {
         ne->droite = Suppr_noeud(ne->droite, clef);
-        MajHauteurEquilibre(ne->droite);
+        if (ne->droite) MajHauteurEquilibre(ne->droite);
         ne->droite = Reequilibre(ne->droite);
-    }
+    } 
     else {
-        printf("Le noeud à supprimer a été trouvé ! ne = %d\n", ne->clef);
-
-        // Cas 1 : La clef correspond à une feuille : 4 cas possibles.
-        if (ne->gauche == NULL && ne->droite == NULL){
-            printf("Cas 1.1 de suppression\n");
-            free(ne);
-            return NULL;
-        }
-        /* Cas impossible ? */
-        else if(ne->gauche == NULL){
-            if(ne->droite->donnee != NULL){
-                printf("Cas 1.2 de suppression\n");
+        printf("Trouvé !\n");
+        // Cas 1 : Aucun enfant (noeud feuille)
+        if ((ne->gauche == NULL || ne->gauche->donnee != NULL) &&
+            (ne->droite == NULL || ne->droite->donnee != NULL)) {
+            printf("Cas feuille\n");
+            if(ne->gauche != NULL){
+                Suppr_Donnee(ne->gauche);
+            }
+            if(ne->droite == NULL){
+                free(ne);
+                return NULL;
+            }
+            if(ne->pere != NULL){
+                ne->droite->pere = ne->pere;
                 if(EstFilsDroit(ne)){
                     ne->pere->droite = ne->droite;
                 }
                 else{
                     ne->pere->gauche = ne->droite;
                 }
-                free(ne);
-                return NULL;
+            }
+            else{
+                Suppr_Donnee(ne->droite);
             }
         }
-        else if(ne->droite == NULL){
-            if(ne->gauche->donnee != NULL){
-                printf("Cas 1.3 de suppression\n");
-                Suppr_Donnee(ne->gauche);
-                ne->pere->gauche = NULL;
-                free(ne);
-                return NULL;
+
+        // Cas 2 : Un seul enfant
+        else if (ne->gauche == NULL || ne->gauche->donnee != NULL) {
+            printf("Cas un seul enfant de droite\n");
+            md = ne->droite;
+
+            Suppr_Donnee(ne->gauche);
+
+            if(ne->pere == NULL){
+                return md;
             }
-        }
-        else if(ne->gauche->donnee != NULL && ne->droite->donnee != NULL){
-            printf("Cas 1.4 de suppression\n");
+
+            ne->droite->pere = ne->pere;
             if(EstFilsDroit(ne)){
                 ne->pere->droite = ne->droite;
             }
             else{
                 ne->pere->gauche = ne->droite;
             }
-            Suppr_Donnee(ne->gauche);
             free(ne);
-            return NULL;
-        }
+            return md;
+        } 
+        else if (ne->droite == NULL || ne->droite->donnee != NULL) {
+            printf("Cas un seul enfant de gauche\n");
+            mg = ne->gauche;
+            md = ne->droite;
 
-
-        // Cas 2 : Un des deux fils est NULL
-        // Fils gauhche nul (fils droit non nul)
-        else if(ne->gauche == NULL){
-            printf("Cas 2.1.1 de suppression\n");
-            nex = ne;
-            ne->droite->pere = ne->pere;
-            ne = ne->droite;
-
-            free(nex);
-        }
-        else if(nex->gauche->donnee != NULL){
-            printf("Cas 2.1.2 de suppression\n");
-            nex = ne;
-            nex->droite->pere = nex->pere;
-            Suppr_Donnee(ne->gauche);
-            nex = nex->droite;
-
-            free(nex);
-        }
-        // Fils droit nul (fils gauche non nul)
-        else if(ne->droite == NULL){
-            printf("Cas 2.2.1 de suppression\n");
-            nex = ne;
-            ne->gauche->pere = ne->pere;
-            ne = ne->gauche;
-
-            free(nex);
-        }
-        else if(ne->droite->donnee != NULL){
-            printf("Cas 2.2.2 de suppression\n");
-            nex = ne;
-
-            Chercher_et_remplacer_donnee(ne->gauche, ne->droite);
-            Suppr_Donnee(ne->droite);
+            if(ne->pere == NULL){
+                return mg;
+            }
 
             ne->gauche->pere = ne->pere;
-            ne = ne->gauche;
+            if(EstFilsDroit(ne)){
+                ne->pere->droite = ne->gauche;
+            }
+            else{
+                ne->pere->gauche = ne->gauche;
+            }
 
-            free(nex);
+            noeud* boucle = ne->gauche;
+            if(ne->droite != NULL){
+
+                while(boucle != NULL || boucle->donnee->donnee != ne->clef){
+                    boucle = boucle->gauche;
+                }
+                if(boucle != NULL){
+                    boucle->donnee->donnee = ne->droite->donnee->donnee;
+                    Suppr_Donnee(ne->droite);
+                }
+            }
+
+            free(ne);
+
+            return mg;
         }
-        // Cas 3 : Les deux fils sont non nuls : cas classique
+
+        // Cas 3 : Deux enfants internes
         else {
-            printf("Cas 3 de suppression\n");
-            remplaçant = Plus_Grand_Noeud(ne->gauche);
+            printf("Cas 3\n");
+            noeud* remplaçant = Plus_Grand_Noeud(ne->gauche);
             ne->clef = remplaçant->clef;
             ne->gauche = Suppr_noeud(ne->gauche, remplaçant->clef);
-            MajHauteurEquilibre(ne->gauche);
+            if (ne->gauche) MajHauteurEquilibre(ne->gauche);
             ne->gauche = Reequilibre(ne->gauche);
         }
     }
 
-    return ne;
+    MajHauteurEquilibre(ne);
+    return Reequilibre(ne);
 }
 
 void Suppression_Noeud(ABR* arbre, int clef) {
+    if (arbre == NULL || arbre->racine == NULL) return;
+    if (chercher(arbre->racine, clef) == NULL) return;
 
-    printf("Suppression et rééquilibrage débutent : %d\n", clef);
-
-    /* Supprime un noeud dans un arbre de manière récursive */
-
-    noeud* racine = NULL;
-
-    if (arbre == NULL || arbre->racine == NULL){
-        return;
+    arbre->racine = Suppr_noeud(arbre->racine, clef);
+    if (arbre->racine) {
+        MajHauteurEquilibre(arbre->racine);
+        arbre->racine = Reequilibre(arbre->racine);
     }
-    if (chercher(arbre->racine, clef) == NULL){
-        return;
-    }
-    
-    racine = Suppr_noeud(arbre->racine, clef); 
-    MajHauteurEquilibre(racine);
-    arbre->racine = Reequilibre(racine);
-    printf("Suppression et rééquilibrage terminés !\n");
-
-    return;
 }
 
 /* ============================= Insertion ================================= */
@@ -490,65 +476,35 @@ void Insertion(ABR* arbre, int clef) {
 
 noeud* insr(noeud* racine, int clef){
 
-    noeud* mem = NULL;
+    printf("Hello\n");
 
     if(racine->clef>clef){
         if(racine->gauche != NULL){
-            if(racine->gauche->donnee == NULL){
-                racine->gauche = insr(racine->gauche,clef);
-                MajHauteurEquilibre(racine->gauche);
-                racine->gauche = Reequilibre(racine->gauche);
-            }
-            else{
-                mem = racine->gauche;
-                racine->gauche = Newnoeud(clef);
-                racine->gauche->pere = racine;
-                racine->gauche->gauche = Newnoeud(0);
-                racine->gauche->gauche->pere = racine->gauche;
-                racine->gauche->gauche->donnee = Newdonnee(clef);
-                racine->gauche->droite = mem;
-                racine->gauche->droite->pere = racine->gauche;
-                MajHauteurEquilibre(racine->gauche);
-            }
+            racine->gauche = insr(racine->gauche,clef);
+            MajHauteurEquilibre(racine->gauche);
+            racine->gauche = Reequilibre(racine->gauche);
         }
         else{
             racine->gauche = Newnoeud(clef);
             racine->gauche->pere = racine;
-            racine->gauche->gauche = Newnoeud(0);
-            racine->gauche->gauche->pere = racine->gauche;
-            racine->gauche->gauche->donnee = Newdonnee(clef);
             MajHauteurEquilibre(racine->gauche);
         }
     }
     else if(racine->clef<clef){
         if(racine->droite != NULL){
-            if(racine->droite->donnee == NULL){
-                racine->droite = insr(racine->droite,clef);
-                MajHauteurEquilibre(racine->droite);
-                racine->droite = Reequilibre(racine->droite);
-            }
-            else{
-                mem = racine->droite;
-                racine->droite = Newnoeud(clef);
-                racine->droite->pere = racine;
-                racine->droite->gauche = Newnoeud(0);
-                racine->droite->gauche->pere = racine->droite;
-                racine->droite->gauche->donnee = Newdonnee(clef);
-                racine->droite->droite = mem;
-                racine->droite->droite->pere = racine->droite;
-                MajHauteurEquilibre(racine->droite);
-            }
+            racine->droite = insr(racine->droite,clef);
+            MajHauteurEquilibre(racine->droite);
+            racine->droite = Reequilibre(racine->droite);
         }
         else{
             racine->droite = Newnoeud(clef);
             racine->droite->pere = racine;
-            racine->droite->gauche = Newnoeud(0);
-            racine->droite->gauche->pere = racine->droite;
-            racine->droite->gauche->donnee = Newdonnee(clef);
             MajHauteurEquilibre(racine->droite);
         }
     }
 
+    MajHauteurEquilibre(racine);
+    racine = Reequilibre(racine);
     return racine;
 }
 

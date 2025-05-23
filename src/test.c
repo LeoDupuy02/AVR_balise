@@ -1,4 +1,7 @@
 #include "AVR.h"
+#include "pile.h"
+#include "AVR_Balise.h"
+#include "graphviz_handler.h"
 
 int test_Creations_Rotations() {
 
@@ -100,21 +103,30 @@ int main(){
 
     ABR* monABR = NewArbre();
 
-    Insertion(monABR, 0);
-    Insertion(monABR, 5);
-    Insertion(monABR, -2);
-    Insertion(monABR, -10);
-    Insertion(monABR, 20);
-    Insertion(monABR, 10);
-    Insertion(monABR, 15);
+    Insertion(monABR, 1);
+    Insertion(monABR, 2);
+    Insertion(monABR, 3);
     AffichageArbre(monABR->racine, 0);
-    Insertion(monABR,50);
-    Insertion(monABR,50);
-
+    Insertion(monABR, 4);
+    Insertion(monABR, 5);
+    AffichageArbre(monABR->racine, 0);
+    Insertion(monABR, 6);
+    Insertion(monABR, 7);
+    AffichageArbre(monABR->racine, 0);
+    Insertion(monABR,8);
     AffichageArbre(monABR->racine, 0);
 
     Suppression_Noeud(monABR, 20);
     AffichageArbre(monABR->racine, 0);
+
+    versAbreBalise(monABR);
+    AffichageArbre(monABR->racine, 0);
+
+    InsertionB(monABR, 60);
+    AffichageArbre(monABR->racine, 0);
+
+    ExporterDot("test1.dot", monABR);
+    system("dot -Tpng test1.dot -o test1.png");
 
     SuppressionArbre(monABR);
 
