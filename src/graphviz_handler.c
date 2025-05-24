@@ -55,7 +55,7 @@ void ExporterDotRec(FILE* fichier, noeud* n) {
 int ExporterDot(const char* nom_fichier, ABR* arbre) {
 
     char file_name[256];
-    snprintf(file_name, sizeof(file_name), "%s.dot", nom_fichier);
+    snprintf(file_name, sizeof(file_name), "../dot/%s.dot", nom_fichier);
 
     FILE* fichier = fopen(file_name, "w");
     if (fichier == NULL) {
@@ -77,13 +77,13 @@ int ExporterDot(const char* nom_fichier, ABR* arbre) {
     fclose(fichier);
 
     char commande[256];
-    snprintf(commande, sizeof(commande), "dot -Tpng %s.dot -o %s.png &", nom_fichier, nom_fichier);
+    snprintf(commande, sizeof(commande), "dot -Tpng ../dot/%s.dot -o ../dot/%s.png &", nom_fichier, nom_fichier);
     printf("%s\n", commande);
     
     // Exécution de la commande Graphviz
     system(commande);
     //Affichage de l'image
-    snprintf(commande, sizeof(commande), "sudo -u $USER eog %s.png 2>/dev/null &", nom_fichier);
+    snprintf(commande, sizeof(commande), "sudo -u $USER eog ../dot/%s.png 2>/dev/null &", nom_fichier);
     printf("%s\n", commande);
     system(commande);
 
