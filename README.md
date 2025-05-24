@@ -1,5 +1,7 @@
 # AVR_balise
-Code permettant de générer et manipuler un AVR balisé.
+Code permettant de générer et manipuler un AVR balisé. Pour plus de facilité à manipuler le code une interface dans le terminal a été réalisée. Pour la lancer :
+- Faire un make,
+- Lancer le fichier ./main
 
 # Menu console
 
