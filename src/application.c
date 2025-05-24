@@ -43,10 +43,10 @@ ABR* generate_AVL_B_from_list(int nbPts, double* list){
     return R;
 }
 
-noeud* find_limit(noeud* ne, int clef){
+noeud* find_limit_low(noeud* ne, double clef){
     
     /* Entrée : ne : racine de l'arbre, clef : clef à trouver dans les noeuds internes */
-    /* Sortie : noeud dont la clef est tout juste supérieur à la valeur a */
+    /* Sortie : noeud dont la clef est tout juste inférieure à la valeur b */
 
     /* Protection pour le reste du code */
     if(ne==NULL || ne->donnee != NULL){
@@ -61,12 +61,7 @@ noeud* find_limit(noeud* ne, int clef){
             return ne;       
         }
         else{
-            if(ne->droite->clef>clef){
-                return ne;
-            }
-            else{
-                return find_limit(ne->droite, clef);
-            }
+            return find_limit_low(ne->droite, clef);
         }
     }
     else{
@@ -74,19 +69,20 @@ noeud* find_limit(noeud* ne, int clef){
             return ne;
         }
         else{
-            if(ne->gauche->clef<clef){
-                return ne;
-            }
-            else{
-                return find_limit(ne->gauche, clef);
-            }
+            return find_limit_low(ne->gauche, clef);
         }
     }
 }
 
 noeud* find_limit_donnee(noeud* ne){
 
-    int clef = ne->clef;
+    double clef = ne->clef;
+
+    if(ne->droite != NULL){
+        if((ne->droite->donnee != NULL && ne->gauche->donnee != NULL) || (ne->gauche != NULL)){
+            return ne->gauche;
+        }
+    }
 
     while(ne->clef != clef || ne->droite != NULL){
         ne = ne->droite;
@@ -100,21 +96,33 @@ noeud* find_limit_donnee(noeud* ne){
     }
 }
 
-double* find_values_in_range(ABR* arbre, double start, double stop, int nbPts){
+Pile* find_values_in_range(ABR* arbre, double start, double stop){
     
-    double* R = malloc(nbPts*sizeof(double));
-    int i = 0;
+    Pile* maPile = creerPile();
 
-    noeud* lim = find_limit(arbre->racine, start);
+    noeud* lim = find_limit_low(arbre->racine, stop);
+    if(lim == NULL){
+        return NULL;
+    }
+
     noeud* ne = find_limit_donnee(lim);
+
+    printf("Limite haute trouvée ! : %f\n", ne->clef);
+
     if(ne == NULL){
         return NULL;
     }
 
-    while(ne != NULL || ne->clef <= stop){
-        R[i] = ne->clef;
-        ne = ne->donnee->donnee;
+    while(ne != NULL && ne->clef >= start){
+        printf("NC : %f\n", ne->clef);
+        push(maPile, ne->clef);
+        if(ne->donnee != NULL){
+            ne = ne->donnee->donnee;
+        }
+        else{
+            ne = NULL;
+        }
     }
 
-    return R;
+    return maPile;
 }

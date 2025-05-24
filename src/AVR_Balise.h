@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include "pile.h"
 
-void InsertionB(ABR* arbre, int clef);
-noeud* insrB(noeud* racine, int clef);
+void InsertionB(ABR* arbre, double clef);
+noeud* insrB(noeud* racine, double clef);
 
 void versAbreBalise(ABR* arbre);
-void CompleterArbreBalise(Pile* pile, noeud* ne);
+noeud* CompleterArbreBalise(Pile* pile, noeud* ne, noeud* mem);
 
 #endif // AVL_B_H

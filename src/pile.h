@@ -2,7 +2,7 @@
 #define PILE_H
 
 typedef struct Element_ {
-    int valeur;
+    double valeur;
     struct Element_* suivant;
 } Element;
 
@@ -12,9 +12,9 @@ typedef struct Pile_ {
 
 Pile* creerPile();
 void viderPile(Pile* pile);
-void push(Pile* pile, int valeur);
-int pop(Pile* pile);
-int top(Pile* pile);
+void push(Pile* pile, double valeur);
+double pop(Pile* pile);
+double top(Pile* pile);
 int estVide(Pile* pile);
 void SupprimerPile(Pile* pile);
 int afficherPile(Pile* pile);

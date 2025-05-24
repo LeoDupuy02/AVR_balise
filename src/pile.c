@@ -11,7 +11,6 @@
 Pile* creerPile() {
     Pile* pile = malloc(sizeof(Pile));
     pile->sommet = NULL;
-    printf("Pile créée\n");
     return pile;
 }
 
@@ -26,7 +25,7 @@ void viderPile(Pile* pile){
 /* ============================= Gestion ================================ */
 
 // Empiler un élément
-void push(Pile* pile, int valeur) {
+void push(Pile* pile, double valeur) {
     Element* nouveau = malloc(sizeof(Element));
     nouveau->valeur = valeur;
     if(pile->sommet != NULL){
@@ -36,17 +35,16 @@ void push(Pile* pile, int valeur) {
         nouveau->suivant = NULL;
     }
     pile->sommet = nouveau;
-    printf("Push réussit\n");
 }
 
 // Dépiler un élément
-int pop(Pile* pile) {
+double pop(Pile* pile) {
     if (pile->sommet == NULL) {
         fprintf(stderr, "Erreur : pile vide !\n");
         exit(EXIT_FAILURE);
     }
     Element* temp = pile->sommet;
-    int valeur = temp->valeur;
+    double valeur = temp->valeur;
     if(temp->suivant != NULL){
         pile->sommet = temp->suivant;
     }
@@ -54,11 +52,10 @@ int pop(Pile* pile) {
         pile->sommet = NULL;
     }
     free(temp);
-    printf("%d\n",valeur);
     return valeur;
 }
 
-int top(Pile* pile) {
+double top(Pile* pile) {
     if (pile->sommet == NULL) {
         fprintf(stderr, "Erreur : pile vide !\n");
         exit(EXIT_FAILURE);
@@ -88,10 +85,9 @@ int afficherPile(Pile* pile) {
         return 0;
     }
 
-    printf("Contenu de la pile (du sommet vers la base) :\n");
     Element* courant = pile->sommet;
     while (courant != NULL) {
-        printf("%d\n", courant->valeur);
+        printf("%f\n", courant->valeur);
         courant = courant->suivant;
     }
     return 1;

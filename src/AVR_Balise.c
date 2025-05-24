@@ -6,12 +6,12 @@
 
 /* =========================== Insertion ================================ */
 
-void InsertionB(ABR* arbre, int clef) {
+void InsertionB(ABR* arbre, double clef) {
 
     /* Code itératif d'insertion dans un AVR */ 
     /* Retour : 1 si la valeur existe déjà, 0 sinon */
 
-    printf("Insertion du noeud : %d\n", clef);
+    printf("Insertion du noeud : %f\n", clef);
 
     if(arbre->racine == NULL){
         arbre->racine = Newnoeud(clef);
@@ -21,12 +21,14 @@ void InsertionB(ABR* arbre, int clef) {
         arbre->racine = insrB(arbre->racine, clef);
     }
 
-    printf("Fin de l'insertion du noeud : %d\n", clef);
+    printf("Fin de l'insertion du noeud : %f\n", clef);
 }
 
-noeud* insrB(noeud* racine, int clef){
+noeud* insrB(noeud* racine, double clef){
 
     noeud* mem = NULL;
+    donnee* mem_data = NULL;
+    noeud* prprec = NULL;
 
     if(racine->clef>clef){
         if(racine->gauche != NULL){
@@ -37,22 +39,25 @@ noeud* insrB(noeud* racine, int clef){
             }
             else{
                 mem = racine->gauche;
+                mem_data = mem->donnee;
                 racine->gauche = Newnoeud(clef);
                 racine->gauche->pere = racine;
-                racine->gauche->gauche = Newnoeud(0);
+                racine->gauche->gauche = Newnoeud(clef);
                 racine->gauche->gauche->pere = racine->gauche;
-                racine->gauche->gauche->donnee = Newdonnee(clef);
+                racine->gauche->gauche->donnee = mem_data;
                 racine->gauche->droite = mem;
                 racine->gauche->droite->pere = racine->gauche;
+                racine->gauche->droite->donnee = Newdonnee(racine->gauche->gauche);
                 MajHauteurEquilibre(racine->gauche);
             }
         }
         else{
+            /* Cas impossible ? */
             racine->gauche = Newnoeud(clef);
             racine->gauche->pere = racine;
-            racine->gauche->gauche = Newnoeud(0);
+            racine->gauche->gauche = Newnoeud(clef);
             racine->gauche->gauche->pere = racine->gauche;
-            racine->gauche->gauche->donnee = Newdonnee(clef);
+            racine->gauche->gauche->donnee = Newdonnee(NULL);
             MajHauteurEquilibre(racine->gauche);
         }
     }
@@ -65,22 +70,37 @@ noeud* insrB(noeud* racine, int clef){
             }
             else{
                 mem = racine->droite;
+                mem_data = mem->donnee;
                 racine->droite = Newnoeud(clef);
                 racine->droite->pere = racine;
-                racine->droite->gauche = Newnoeud(0);
+                racine->droite->gauche = Newnoeud(clef);
                 racine->droite->gauche->pere = racine->droite;
-                racine->droite->gauche->donnee = Newdonnee(clef);
+                racine->droite->gauche->donnee = mem_data;
                 racine->droite->droite = mem;
                 racine->droite->droite->pere = racine->droite;
+                racine->droite->droite->donnee = Newdonnee(racine->gauche->gauche);
                 MajHauteurEquilibre(racine->droite);
             }
         }
         else{
+            /* On trouve la donnée précédente */
+            mem = racine->gauche;
+            mem_data = mem->donnee;
+            while(mem->droite->donnee != NULL){
+                mem = mem->droite;
+                mem_data = mem->donnee;
+            }
+            mem->pere->droite = Newnoeud(mem->clef);
+            prprec = mem->pere->droite;
+            mem->pere->droite->donnee = Newdonnee(mem_data->donnee);
+
             racine->droite = Newnoeud(clef);
             racine->droite->pere = racine;
-            racine->droite->gauche = Newnoeud(0);
+            racine->droite->gauche = mem;
+            racine->droite->gauche->clef = clef;
             racine->droite->gauche->pere = racine->droite;
-            racine->droite->gauche->donnee = Newdonnee(clef);
+            racine->droite->gauche->donnee = Newdonnee(prprec);
+
             MajHauteurEquilibre(racine->droite);
         }
     }
@@ -105,12 +125,12 @@ void versAbreBalise(ABR* arbre){
 
 }
 
-void CompleterArbreBalise(Pile* pile, noeud* ne, noeud* mem){
+noeud* CompleterArbreBalise(Pile* pile, noeud* ne, noeud* mem){
 
-    int cleGauche;
-    int cleDroite;
+    double cleGauche;
+    double cleDroite;
 
-    printf("Noeud actuel : %d\n", ne->clef);
+    printf("Noeud actuel : %f\n", ne->clef);
     push(pile, ne->clef);
     
     /* Feuille */
@@ -131,11 +151,12 @@ void CompleterArbreBalise(Pile* pile, noeud* ne, noeud* mem){
             ne->droite = droite;
             ne->droite->pere = ne;
         }
-        return;
+
+        return mem;
     }
 
     if(ne->gauche != NULL){
-        CompleterArbreBalise(pile, ne->gauche, mem);
+        mem = CompleterArbreBalise(pile, ne->gauche, mem);
     }
     else{
         if(!estVide(pile)){
@@ -148,19 +169,18 @@ void CompleterArbreBalise(Pile* pile, noeud* ne, noeud* mem){
         }
     }
     if(ne->droite != NULL){
-        CompleterArbreBalise(pile, ne->droite, mem);
+        mem = CompleterArbreBalise(pile, ne->droite, mem);
     }
     else{
         if(!estVide(pile)){
             cleDroite = pop(pile);
             noeud* droite = Newnoeud(cleDroite);
-            droite->donnee = Newdonnee(droite);
+            droite->donnee = Newdonnee(mem);
+            mem = droite;
             ne->droite = droite;
             ne->droite->pere = ne;
         }
     }
 
-    return;
+    return mem;
 }
-
-/* --------------------------- Suppression donnée ----------------------------- */

@@ -4,12 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct donnee_ {
-    noeud* donnee;
-} donnee;
+struct noeud_;
+struct donnee_;
 
 typedef struct noeud_ {
-    int clef;
+    double clef;
     struct donnee_* donnee;
     struct noeud_* gauche;
     struct noeud_* droite;
@@ -18,21 +17,25 @@ typedef struct noeud_ {
     int equilibre;
 } noeud;
 
+typedef struct donnee_ {
+    noeud* donnee;
+} donnee;
+
 typedef struct ABR_ {
     noeud* racine;
 } ABR;
 
-noeud* Newnoeud(int clef);
-donnee* Newdonnee(int d);
+noeud* Newnoeud(double clef);
+donnee* Newdonnee(noeud* d);
 ABR* NewArbre();
 
 int hauteur(noeud* ne);
 void MajHauteurEquilibre(noeud* ne);
 int MajHauteurEquilibreRec(noeud* ne);
 
-noeud* chercher(noeud* racine, int clef);
+noeud* chercher(noeud* racine, double clef);
 noeud* Plus_Grand_Noeud(noeud* ne);
-noeud* localiserPere(noeud* racine, int clef);
+noeud* localiserPere(noeud* racine, double clef);
 
 int EstFilsDroit(noeud* ne);
 int EstFilsGauche(noeud* ne);
@@ -45,11 +48,11 @@ noeud* RotationDroite(noeud* piv);
 noeud* Reequilibre(noeud* ne);
 
 void Suppr_Donnee(noeud* ne);
-noeud* Suppr_noeud(noeud* ne, int clef);
-void Suppression_Noeud(ABR* arbre, int clef);
+noeud* Suppr_noeud(noeud* ne, double clef);
+void Suppression_Noeud(ABR* arbre, double clef);
 
-void Insertion(ABR* arbre, int clef);
-noeud* insr(noeud* racine, int clef);
+void Insertion(ABR* arbre, double clef);
+noeud* insr(noeud* racine, double clef);
 
 int SupprArbre(noeud* racine);
 void SuppressionArbre(ABR* arbre);
