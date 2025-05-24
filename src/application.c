@@ -114,7 +114,6 @@ Pile* find_values_in_range(ABR* arbre, double start, double stop){
     }
 
     while(ne != NULL && ne->clef >= start){
-        printf("NC : %f\n", ne->clef);
         push(maPile, ne->clef);
         if(ne->donnee != NULL){
             ne = ne->donnee->donnee;

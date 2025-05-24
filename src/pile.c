@@ -93,6 +93,26 @@ int afficherPile(Pile* pile) {
     return 1;
 }
 
+/* =========================== Enregistrement de la pile ======================= */
+
+void save_stack_to_file(Pile* pile, const char* filename) {
+
+    FILE* file = fopen(filename, "w");
+    if (!file) {
+        perror("Erreur ouverture fichier");
+        return;
+    }
+
+    Element* current = pile->sommet;
+    while (current != NULL) {
+        fprintf(file, "%f\n", current->valeur);
+        current = current->suivant;
+    }
+
+    fclose(file);
+
+}
+
 
 /* ================================= TEST PILE ======================================*/
 

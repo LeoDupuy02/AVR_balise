@@ -18,6 +18,6 @@ double top(Pile* pile);
 int estVide(Pile* pile);
 void SupprimerPile(Pile* pile);
 int afficherPile(Pile* pile);
-
+void save_stack_to_file(Pile* pile, const char* filename);
 
 #endif // PILE_H

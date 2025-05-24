@@ -1,0 +1,90 @@
+digraph Arbre {
+    node [shape=circle, fontname="Arial"];
+    "0x571ba3fcdda0" [label="4.000000"];
+    "0x571ba3fcdda0" -> "0x571ba3fcdd20" [label="g"];
+    "0x571ba3fcdd20" [label="2.000000"];
+    "0x571ba3fcdd20" -> "0x571ba3fcdce0" [label="g"];
+    "0x571ba3fcdce0" [label="1.000000"];
+    "0x571ba3fcdce0" -> "0x571ba3fce020" [label="g"];
+    "0x571ba3fce020" [label="1.000000",shape=box];
+    "0x571ba3fce020" -> "(nil)" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce020"; "(nil)"; }
+    "0x571ba3fce020" -> "(nil)" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce020"; "(nil)"; }
+    "0x571ba3fcdce0" -> "0x571ba3fce060" [label="d"];
+    "0x571ba3fce060" [label="2.000000",shape=box];
+    "0x571ba3fce060" -> "0x571ba3fce020" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce060"; "0x571ba3fce020"; }
+    "0x571ba3fce060" -> "0x571ba3fce020" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce060"; "0x571ba3fce020"; }
+    "0x571ba3fcdd20" -> "0x571ba3fcdd60" [label="d"];
+    "0x571ba3fcdd60" [label="3.000000"];
+    "0x571ba3fcdd60" -> "0x571ba3fce0c0" [label="g"];
+    "0x571ba3fce0c0" [label="3.000000",shape=box];
+    "0x571ba3fce0c0" -> "0x571ba3fce060" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce0c0"; "0x571ba3fce060"; }
+    "0x571ba3fce0c0" -> "0x571ba3fce060" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce0c0"; "0x571ba3fce060"; }
+    "0x571ba3fcdd60" -> "0x571ba3fce100" [label="d"];
+    "0x571ba3fce100" [label="4.000000",shape=box];
+    "0x571ba3fce100" -> "0x571ba3fce0c0" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce100"; "0x571ba3fce0c0"; }
+    "0x571ba3fce100" -> "0x571ba3fce0c0" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce100"; "0x571ba3fce0c0"; }
+    "0x571ba3fcdda0" -> "0x571ba3fcdea0" [label="d"];
+    "0x571ba3fcdea0" [label="8.000000"];
+    "0x571ba3fcdea0" -> "0x571ba3fcde20" [label="g"];
+    "0x571ba3fcde20" [label="6.000000"];
+    "0x571ba3fcde20" -> "0x571ba3fcdde0" [label="g"];
+    "0x571ba3fcdde0" [label="5.000000"];
+    "0x571ba3fcdde0" -> "0x571ba3fce1a0" [label="g"];
+    "0x571ba3fce1a0" [label="5.000000",shape=box];
+    "0x571ba3fce1a0" -> "0x571ba3fce100" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce1a0"; "0x571ba3fce100"; }
+    "0x571ba3fce1a0" -> "0x571ba3fce100" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce1a0"; "0x571ba3fce100"; }
+    "0x571ba3fcdde0" -> "0x571ba3fce1e0" [label="d"];
+    "0x571ba3fce1e0" [label="6.000000",shape=box];
+    "0x571ba3fce1e0" -> "0x571ba3fce1a0" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce1e0"; "0x571ba3fce1a0"; }
+    "0x571ba3fce1e0" -> "0x571ba3fce1a0" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce1e0"; "0x571ba3fce1a0"; }
+    "0x571ba3fcde20" -> "0x571ba3fcde60" [label="d"];
+    "0x571ba3fcde60" [label="7.000000"];
+    "0x571ba3fcde60" -> "0x571ba3fce240" [label="g"];
+    "0x571ba3fce240" [label="7.000000",shape=box];
+    "0x571ba3fce240" -> "0x571ba3fce1e0" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce240"; "0x571ba3fce1e0"; }
+    "0x571ba3fce240" -> "0x571ba3fce1e0" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce240"; "0x571ba3fce1e0"; }
+    "0x571ba3fcde60" -> "0x571ba3fce280" [label="d"];
+    "0x571ba3fce280" [label="8.000000",shape=box];
+    "0x571ba3fce280" -> "0x571ba3fce240" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce280"; "0x571ba3fce240"; }
+    "0x571ba3fce280" -> "0x571ba3fce240" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce280"; "0x571ba3fce240"; }
+    "0x571ba3fcdea0" -> "0x571ba3fcdf20" [label="d"];
+    "0x571ba3fcdf20" [label="10.000000"];
+    "0x571ba3fcdf20" -> "0x571ba3fcdee0" [label="g"];
+    "0x571ba3fcdee0" [label="9.000000"];
+    "0x571ba3fcdee0" -> "0x571ba3fce300" [label="g"];
+    "0x571ba3fce300" [label="9.000000",shape=box];
+    "0x571ba3fce300" -> "0x571ba3fce280" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce300"; "0x571ba3fce280"; }
+    "0x571ba3fce300" -> "0x571ba3fce280" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce300"; "0x571ba3fce280"; }
+    "0x571ba3fcdee0" -> "0x571ba3fce340" [label="d"];
+    "0x571ba3fce340" [label="10.000000",shape=box];
+    "0x571ba3fce340" -> "0x571ba3fce300" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce340"; "0x571ba3fce300"; }
+    "0x571ba3fce340" -> "0x571ba3fce300" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce340"; "0x571ba3fce300"; }
+    "0x571ba3fcdf20" -> "0x571ba3fcdf60" [label="d"];
+    "0x571ba3fcdf60" [label="11.000000"];
+    "0x571ba3fcdf60" -> "0x571ba3fce3a0" [label="g"];
+    "0x571ba3fce3a0" [label="11.000000",shape=box];
+    "0x571ba3fce3a0" -> "0x571ba3fce340" [style=dashed, color=red, constraint=false];
+    { rank=same; "0x571ba3fce3a0"; "0x571ba3fce340"; }
+    "0x571ba3fce3a0" -> "0x571ba3fce340" [style=dashed, color=blue, constraint=false];
+    { rank=same; "0x571ba3fce3a0"; "0x571ba3fce340"; }
+}
