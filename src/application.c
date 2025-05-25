@@ -9,8 +9,6 @@ double* generate_list(double a, double b, int nbPts){
 
     /* On considère qu'il est impossible d'avoir des doubles dans des listes de doubles */
 
-    printf("Tableau de recherche : \n");
-
     srand(time(NULL));
     double* r = malloc(nbPts*sizeof(double));
     if (r == NULL) {
@@ -20,11 +18,6 @@ double* generate_list(double a, double b, int nbPts){
 
     for (int i = 0; i < nbPts; i++) {
         r[i] = random_double(a, b);
-    }
-
-    // Affichage du tableau
-    for (int i = 0; i < nbPts; i++) {
-        printf("tab[%d] = %f\n", i, r[i]);
     }
 
     return r;
@@ -112,6 +105,8 @@ Pile* find_values_in_range(ABR* arbre, double start, double stop){
     if(ne == NULL){
         return NULL;
     }
+
+    ne = ne->donnee->donnee;
 
     while(ne != NULL && ne->clef >= start){
         push(maPile, ne->clef);

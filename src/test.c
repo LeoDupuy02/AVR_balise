@@ -7,6 +7,7 @@
 int main(){
 
     /* Test de l equilibrage d'un arbre */
+    int i = 0;
 
     ABR* arbre = NewArbre();
     Insertion(arbre, 1);
@@ -20,9 +21,12 @@ int main(){
     Insertion(arbre, 9);
 
     versAbreBalise(arbre);
-
+    
     Suppression_Noeud(arbre, 6);
+    ExporterDot("file", arbre);
 
+    scanf("%d", &i);
+    Suppression_Noeud(arbre, 5);
     ExporterDot("file", arbre);
     
     SuppressionArbre(arbre);

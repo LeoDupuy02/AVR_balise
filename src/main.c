@@ -7,39 +7,7 @@
 #include "graphviz_handler.h"
 #include "application.h"
 #include "pile.h"
-
-double* lire_doubles_fichier(const char* nom_fichier, int* taille) {
-    FILE* fichier = fopen(nom_fichier, "r");
-    if (!fichier) {
-        perror("Erreur lors de l'ouverture du fichier");
-        return NULL;
-    }
-
-    if (fscanf(fichier, "%d", taille) != 1 || *taille <= 0) {
-        fprintf(stderr, "Erreur de lecture du nombre de valeurs.\n");
-        fclose(fichier);
-        return NULL;
-    }
-
-    double* valeurs = malloc(*taille * sizeof(double));
-    if (!valeurs) {
-        perror("Erreur d'allocation mémoire");
-        fclose(fichier);
-        return NULL;
-    }
-
-    for (int i = 0; i < *taille; i++) {
-        if (fscanf(fichier, "%lf", &valeurs[i]) != 1) {
-            fprintf(stderr, "Erreur de lecture à la ligne %d\n", i + 2);
-            free(valeurs);
-            fclose(fichier);
-            return NULL;
-        }
-    }
-
-    fclose(fichier);
-    return valeurs;
-}
+#include "file_handler.h"
 
 int main() {
     int State = 0, choice = 0, count = 0, type_arbre = 0;
@@ -49,6 +17,7 @@ int main() {
     ABR* monABR = NewArbre();
     Pile* pile = creerPile();
     char* token = NULL;
+    double a, b;
 
     while (1) {
         switch (State) {
@@ -56,10 +25,11 @@ int main() {
                 printf("Menu :\n");
                 printf(" 1 - Entrer des valeurs pour générer un AVL\n");
                 printf(" 2 - Générer un AVL à partir d'un fichier\n");
-                printf(" 3 - Ajouter une valeur (seulement pour AVL)\n");
-                printf(" 4 - Supprimer une valeur (seulement pour AVL)\n");
-                printf(" 5 - Vider l'arbre \n");
-                printf(" 6 - Quitter\n");
+                printf(" 3 - Générer un AVL aléatoirement avec des valeurs comprises entre a et b\n");
+                printf(" 4 - Ajouter une valeur à l'arbre\n");
+                printf(" 5 - Supprimer une valeur de l'arbre\n");
+                printf(" 6 - Vider l'arbre \n");
+                printf(" 7 - Quitter\n");
                 printf("Que voulez-vous faire : ");
 
                 if (scanf("%d", &State) != 1) {
@@ -69,10 +39,10 @@ int main() {
                     continue;
                 }
 
-                if (State < 1 || State > 6) {
+                if (State < 1 || State > 7) {
                     printf("Choix invalide, réessayez !\n");
                     State = 0;
-                } else if (State == 6) {
+                } else if (State == 7) {
                     SuppressionArbre(monABR);
                     SupprimerPile(pile);
                     if (tab != NULL) {
@@ -83,20 +53,27 @@ int main() {
                 } else if (State == 2) {
                     State = 5;
                 } else if (State == 3) {
+                    State = 9;
+                }
+                else if (State == 4) {
                     State = 6;
-                } else if (State == 5) {
+                } else if (State == 6) {
                     State = 7;
-                } else if (State == 4) {
+                } else if (State == 5) {
                     State = 8;
                 }
                 break;
 
             case 1:
+
+                type_arbre = 0;
+
                 /* On vide ce qu'il y a à vider */
                 if(tab != NULL){
                     free(tab);
                 }
-                ABR* monABR = NewArbre();
+                SupprArbre(monABR->racine);
+                monABR->racine = NULL;
                 memset(buffer, 0, sizeof(buffer));
                 count = 0; 
 
@@ -113,16 +90,17 @@ int main() {
                 }
 
                 printf("Vous avez saisi %d entiers :\n", count);
-                for (int i = 0; i < count; i++) {
-                    printf("%f ", tab[i]);
-                }
-                printf("\n");
+                
+                printf("Enregistrement des points dans points.txt !\n");
+                enregistrer_liste(tab, count, "points.txt");
 
                 State = 3;
                 break;
 
             case 2:
-                versAbreBalise(monABR);
+                if(type_arbre != 1){
+                    versAbreBalise(monABR);
+                }
                 ExporterDot("File_AVL_Balise", monABR);
                 type_arbre = 1;
 
@@ -137,6 +115,9 @@ int main() {
                 break;
 
             case 3:
+
+                SupprArbre(monABR->racine);
+                monABR->racine = NULL;
                 for (int i = 0; i < count; i++) {
                     Insertion(monABR, tab[i]);
                 }
@@ -154,7 +135,6 @@ int main() {
                 break;
 
             case 4: {
-                double a, b;
                 printf("Entrez la borne inférieure a : ");
                 scanf("%lf", &a);
                 printf("Entrez la borne supérieure b : ");
@@ -169,6 +149,19 @@ int main() {
             }
 
             case 5: {
+
+                /* On vide ce qu'il y a à vider */
+                if(tab != NULL){
+                    free(tab);
+                }
+                SupprArbre(monABR->racine);
+                monABR->racine = NULL;
+                memset(buffer, 0, sizeof(buffer));
+                count = 0; 
+
+                /* AVL */
+                type_arbre = 0;
+
                 char nom_fichier[256];
                 printf("Entrez le nom du fichier contenant les données : ");
                 scanf("%255s", nom_fichier);
@@ -177,9 +170,6 @@ int main() {
                 tab = lire_doubles_fichier(nom_fichier, &count);
                 if (!tab) return 1;
 
-                for (int j = 0; j < count; j++) {
-                    printf("%f\n", tab[j]);
-                }
                 State = 3;
                 break;
             }
@@ -189,8 +179,13 @@ int main() {
                     count = count + 1;
                     printf("Entrez la valeur à ajouter : ");
                     scanf("%lf", &val);
-                    Insertion(monABR, val);
-                    State = 3;
+                    if(type_arbre == 0){
+                        Insertion(monABR, val);
+                    }
+                    else{
+                        InsertionB(monABR, val);
+                    }
+                    State = 2;
                 } else {
                     printf("Erreur : arbre vide !\n");
                     State = 0;
@@ -198,7 +193,8 @@ int main() {
                 break;
 
             case 7:
-                monABR = NewArbre();
+                SupprArbre(monABR->racine);
+                monABR->racine = NULL;
                 State = 0;
                 break;
 
@@ -208,12 +204,43 @@ int main() {
                     printf("Entrez la valeur à supprimer : ");
                     scanf("%lf", &val);
                     Suppression_Noeud(monABR, val);
-                    State = 3;
-                } else {
+                    State = 2;
+                } 
+                else {
                     printf("Erreur : arbre vide !\n");
                     State = 0;
                 }
                 break;
+
+            case 9:{
+
+                /* On vide ce qu'il y a à vider */
+                if(tab != NULL){
+                    free(tab);
+                }
+                SupprArbre(monABR->racine);
+                monABR->racine = NULL;
+                memset(buffer, 0, sizeof(buffer));
+                count = 0; 
+
+                /* AVL */
+                type_arbre = 0;
+
+                printf("Entrez la valeur de a : ");
+                scanf("%lf", &a);
+                printf("Entrez la valeur de b : ");
+                scanf("%lf", &b);
+                printf("Entrez le nombre de points : ");
+                scanf("%d", &count);
+
+                tab = generate_list(a,b,count);
+                printf("Enregistrement des points dans points.txt !\n");
+                enregistrer_liste(tab, count, "points.txt");
+
+                State = 3;
+
+                break;
+            }
 
             default:
                 State = 0;

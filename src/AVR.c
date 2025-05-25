@@ -333,25 +333,20 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
     noeud* mem1 = NULL;
     noeud* mem2 = NULL;
     donnee* mem1d = NULL;
-
-    printf("Suppression de %f\n", ne->clef);
+    double key = 0;
 
     if (ne == NULL) return ne;
 
     if (clef < ne->clef) {
-        printf("%f\n", ne->clef);
         ne->gauche = Suppr_noeud(ne->gauche, clef);
         if (ne->gauche) MajHauteurEquilibre(ne->gauche);
         ne->gauche = Reequilibre(ne->gauche);
-        printf("Ici g\n");
         return ne;
     } 
     else if (clef > ne->clef) {
-        printf("%f\n", ne->clef);
         ne->droite = Suppr_noeud(ne->droite, clef);
         if (ne->droite) MajHauteurEquilibre(ne->droite);
         ne->droite = Reequilibre(ne->droite);
-        printf("Ici d\n");
         return ne;
     } 
     else {
@@ -412,8 +407,26 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
 
                 mem2 = ne->droite;
                 free(ne);
-
                 return mem2;
+            }
+            else{
+
+                printf("Cas deux enfants \n");
+
+                noeud* remplaçant = Plus_Grand_Noeud(ne->gauche);
+                if(remplaçant->gauche->donnee != NULL && remplaçant->droite->donnee != NULL){
+                    key = remplaçant->gauche->clef;
+                    remplaçant->gauche->clef = remplaçant->droite->clef;
+                    remplaçant->droite->clef = key;
+                }
+                key = ne->clef;
+                ne->clef = remplaçant->clef;
+                remplaçant->clef = key;
+                ne->gauche = Suppr_noeud(ne->gauche, remplaçant->clef);
+                if (ne->gauche) MajHauteurEquilibre(ne->gauche);
+                ne->gauche = Reequilibre(ne->gauche);
+
+                return ne;
             }
         }
         // Cas 2 : Un seul enfant
@@ -486,21 +499,9 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
 
             return mg;
         }
-
-        // Cas 3 : Deux enfants internes
-        else {
-            printf("Cas deux enfants \n");
-            noeud* remplaçant = Plus_Grand_Noeud(ne->gauche);
-            ne->clef = remplaçant->clef;
-            ne->gauche = Suppr_noeud(ne->gauche, remplaçant->clef);
-            if (ne->gauche) MajHauteurEquilibre(ne->gauche);
-            ne->gauche = Reequilibre(ne->gauche);
-
-            return ne;
-        }
     }
 
-    return;
+    return NULL;
 }
 
 void Suppression_Noeud(ABR* arbre, double clef) {

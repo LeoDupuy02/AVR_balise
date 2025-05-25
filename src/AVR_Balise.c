@@ -11,8 +11,6 @@ void InsertionB(ABR* arbre, double clef) {
     /* Code itératif d'insertion dans un AVR */ 
     /* Retour : 1 si la valeur existe déjà, 0 sinon */
 
-    printf("Insertion du noeud : %f\n", clef);
-
     if(arbre->racine == NULL){
         arbre->racine = Newnoeud(clef);
         MajHauteurEquilibre(arbre->racine);
@@ -20,8 +18,6 @@ void InsertionB(ABR* arbre, double clef) {
     else{
         arbre->racine = insrB(arbre->racine, clef);
     }
-
-    printf("Fin de l'insertion du noeud : %f\n", clef);
 }
 
 noeud* insrB(noeud* racine, double clef){
@@ -71,20 +67,39 @@ noeud* insrB(noeud* racine, double clef){
             else{
                 mem = racine->droite;
                 mem_data = mem->donnee;
+
+                /* On ajoute le nouveau noeud */
                 racine->droite = Newnoeud(clef);
                 racine->droite->pere = racine;
+
+                /* On lui ajoute sa feuille externe associée */
                 racine->droite->gauche = Newnoeud(clef);
                 racine->droite->gauche->pere = racine->droite;
                 racine->droite->gauche->donnee = mem_data;
+
+                /* On replace la feuille de droite avec le bon pointeur */
                 racine->droite->droite = mem;
                 racine->droite->droite->pere = racine->droite;
-                racine->droite->droite->donnee = Newdonnee(racine->gauche->gauche);
+                racine->droite->droite->donnee = Newdonnee(racine->droite->gauche);
+
                 MajHauteurEquilibre(racine->droite);
             }
         }
         else{
-            /* On trouve la donnée précédente */
+            racine->droite = Newnoeud(clef);
+            racine->droite->pere = racine->droite;
+
+            /* Cas simple */
             mem = racine->gauche;
+            if(mem->donnee != NULL){
+                racine->droite->gauche = Newnoeud(clef);
+                racine->droite->gauche->donnee = Newdonnee(mem);
+                MajHauteurEquilibre(racine->droite);
+                return racine;
+            }
+
+            /* Cas compliqué */
+            /* On trouve la donnée précédente */
             mem_data = mem->donnee;
             while(mem->droite->donnee != NULL){
                 mem = mem->droite;
@@ -112,14 +127,10 @@ noeud* insrB(noeud* racine, double clef){
 
 void versAbreBalise(ABR* arbre){
 
-    printf("Début balisage\n");
-
     Pile* maPile = creerPile();
     afficherPile(maPile);
 
     CompleterArbreBalise(maPile, arbre->racine, NULL);
-
-    printf("Fin du balisage\n");
 
     SupprimerPile(maPile);
 
@@ -130,7 +141,6 @@ noeud* CompleterArbreBalise(Pile* pile, noeud* ne, noeud* mem){
     double cleGauche;
     double cleDroite;
 
-    printf("Noeud actuel : %f\n", ne->clef);
     push(pile, ne->clef);
     
     /* Feuille */
