@@ -1,6 +1,7 @@
 /* AVR.c */
 
 #include "AVR.h"
+#include "graphviz_handler.h"
 
 /* ============================= Création ================================ */
 
@@ -58,7 +59,7 @@ void MajHauteurEquilibre(noeud* ne){
         else{
             ne->hauteur = 1 + htrg;
         }
-        printf("Maj de %f : hauteur = %d and equlibre = %d\n", ne->clef, ne->hauteur, ne->equilibre);
+        //printf("Maj de %f : hauteur = %d and equlibre = %d\n", ne->clef, ne->hauteur, ne->equilibre);
     }
 
 }
@@ -196,8 +197,6 @@ void AffichageArbre(noeud* n, int niveau) {
 
 noeud* RotationGauche(noeud* piv){
 
-    printf("Rot G\n");
-
     noeud* rac = piv;
     noeud* prpiv = piv->pere;
 
@@ -233,8 +232,6 @@ noeud* RotationGauche(noeud* piv){
 }
 
 noeud* RotationDroite(noeud* piv){
-
-    printf("Rot G\n");
     
     noeud* rac = piv;
     noeud* prpiv = piv->pere;
@@ -284,7 +281,7 @@ noeud* Reequilibre(noeud* ne){
 
     if(pntr != NULL){
         if(pntr->donnee == NULL){
-            printf("On va rééquilibre tout cela au niveau de : %f\n", ne->clef);
+            //printf("On va rééquilibre tout cela au niveau de : %f\n", ne->clef);
             eql = pntr->equilibre;
             if(eql == 2){
                 /* OK car les feuilles externes ne sont pas pris en compte dans le calcul de la hauteur et de l'équilibre */
@@ -333,58 +330,98 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
 
     noeud* mg = NULL;
     noeud* md = NULL;
-    donnee* mem = NULL;
-    noeud* m = NULL;
+    noeud* mem1 = NULL;
+    noeud* mem2 = NULL;
+    donnee* mem1d = NULL;
+
+    printf("Suppression de %f\n", ne->clef);
 
     if (ne == NULL) return ne;
 
     if (clef < ne->clef) {
+        printf("%f\n", ne->clef);
         ne->gauche = Suppr_noeud(ne->gauche, clef);
         if (ne->gauche) MajHauteurEquilibre(ne->gauche);
         ne->gauche = Reequilibre(ne->gauche);
+        printf("Ici g\n");
+        return ne;
     } 
     else if (clef > ne->clef) {
+        printf("%f\n", ne->clef);
         ne->droite = Suppr_noeud(ne->droite, clef);
         if (ne->droite) MajHauteurEquilibre(ne->droite);
         ne->droite = Reequilibre(ne->droite);
+        printf("Ici d\n");
+        return ne;
     } 
     else {
         printf("Trouvé !\n");
+
         // Cas 1 : Aucun enfant (noeud feuille)
-        if ((ne->gauche == NULL || ne->gauche->donnee != NULL) &&
-            (ne->droite == NULL || ne->droite->donnee != NULL)) {
-            printf("Cas feuille\n");
-            if(ne->gauche != NULL){
-                mem = ne->gauche->donnee;
-            }
-            if(ne->droite == NULL){
-                ne->pere->droite = ne->gauche;
-                free(ne);
-                return NULL;
-            }
+        if(ne->gauche == NULL && ne->droite == NULL){
+            printf("Les deux sont nuls\n");
             if(ne->pere != NULL){
-                ne->droite->pere = ne->pere;
                 if(EstFilsDroit(ne)){
                     ne->pere->droite = ne->droite;
                 }
                 else{
                     ne->pere->gauche = ne->droite;
                 }
-                Suppr_Donnee(ne->droite);
-                ne->droite->donnee = mem;
+                MajHauteurEquilibre(ne->pere);
             }
-            else{
-                Suppr_Donnee(ne->droite);
-            }
-
             free(ne);
+            return NULL;
         }
+        else if(ne->gauche == NULL){
+            printf("Ne de gauche nul\n");
+            /* Cas n'existe pas */
+            if(ne->droite->donnee != NULL){
 
+            }
+        }
+        else if(ne->droite == NULL){
+            /* Cas à l'extrême droite */
+            printf("Ne de droite nul\n");
+            if(ne->gauche->donnee != NULL){
+                Suppr_Donnee(ne->gauche);
+                if(ne->pere != NULL){
+                    ne->pere->droite = NULL;
+                    MajHauteurEquilibre(ne->pere);
+                }
+                free(ne);
+                return NULL;
+            }
+        }
+        else if(ne->gauche != NULL && ne->droite != NULL){
+            if(ne->gauche->donnee != NULL && ne->droite->donnee != NULL){
+
+                printf("Deux noeuds de données !");
+                mem1d = ne->gauche->donnee;
+
+                if(ne->pere != NULL){
+                    if(EstFilsDroit(ne)){
+                        ne->pere->droite = ne->droite;
+                    }
+                    else{
+                        ne->pere->gauche = ne->droite;
+                    }
+                    MajHauteurEquilibre(ne->pere);
+                }
+                Suppr_Donnee(ne->droite);
+                ne->droite->donnee = mem1d;
+
+                mem2 = ne->droite;
+                free(ne);
+
+                return mem2;
+            }
+        }
         // Cas 2 : Un seul enfant
         else if (ne->gauche == NULL || ne->gauche->donnee != NULL) {
             printf("Cas un seul enfant de droite\n");
             md = ne->droite;
             mg = ne->gauche;
+            mem1 = ne->gauche->donnee->donnee;
 
             if(ne->pere == NULL){
                 Suppr_Donnee(mg);
@@ -393,8 +430,9 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
                 return md;
             }
 
-            mem = ne->gauche->donnee;
             Suppr_Donnee(mg);
+
+            /* On rattache le noeud de droite au pere */
             ne->droite->pere = ne->pere;
             if(EstFilsDroit(ne)){
                 ne->pere->droite = ne->droite;
@@ -403,11 +441,11 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
                 ne->pere->gauche = ne->droite;
             }
 
-            m = md;
-            while(m->gauche->donnee == NULL){
-                m = m->gauche;
+            mem2 = md;
+            while(mem2->gauche->donnee == NULL){
+                mem2 = mem2->gauche;
             }
-            m->donnee = mem;
+            mem2->donnee->donnee = mem1;
 
             free(ne);
             return md;
@@ -418,10 +456,12 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
             md = ne->droite;
 
             if(ne->pere == NULL){
+                Suppr_Donnee(ne);
                 free(ne);
                 return mg;
             }
 
+            /* On lie au père */
             ne->gauche->pere = ne->pere;
             if(EstFilsDroit(ne)){
                 ne->pere->droite = ne->gauche;
@@ -430,15 +470,16 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
                 ne->pere->gauche = ne->gauche;
             }
 
+            /* On retrouve la feuille externe associée au numéro à supprimer */
             noeud* boucle = ne->gauche;
-
             while(boucle != NULL || boucle->donnee == NULL){
                 boucle = boucle->droite;
             }
             if(boucle != NULL){
-                mem = boucle->donnee;
+                mem1d = boucle->donnee;
+                Suppr_Donnee(boucle);
                 boucle->pere->droite = md;
-                boucle->pere->droite->donnee = mem;
+                boucle->pere->droite->donnee = mem1d;
             }
             
             free(ne);
@@ -448,17 +489,18 @@ noeud* Suppr_noeud(noeud* ne,double clef) {
 
         // Cas 3 : Deux enfants internes
         else {
-            printf("Cas 3\n");
+            printf("Cas deux enfants \n");
             noeud* remplaçant = Plus_Grand_Noeud(ne->gauche);
             ne->clef = remplaçant->clef;
             ne->gauche = Suppr_noeud(ne->gauche, remplaçant->clef);
             if (ne->gauche) MajHauteurEquilibre(ne->gauche);
             ne->gauche = Reequilibre(ne->gauche);
+
+            return ne;
         }
     }
 
-    MajHauteurEquilibre(ne);
-    return Reequilibre(ne);
+    return;
 }
 
 void Suppression_Noeud(ABR* arbre, double clef) {
@@ -479,8 +521,6 @@ void Insertion(ABR* arbre, double clef) {
     /* Code itératif d'insertion dans un AVR */ 
     /* Retour : 1 si la valeur existe déjà, 0 sinon */
 
-    printf("Insertion du noeud : %f\n", clef);
-
     if(arbre->racine == NULL){
         arbre->racine = Newnoeud(clef);
         MajHauteurEquilibre(arbre->racine);
@@ -489,7 +529,6 @@ void Insertion(ABR* arbre, double clef) {
         arbre->racine = insr(arbre->racine, clef);
     }
 
-    printf("Fin de l'insertion du noeud : %f\n", clef);
 }
 
 noeud* insr(noeud* racine, double clef){
